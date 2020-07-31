@@ -103,8 +103,8 @@ echo "initrd /intel-ucode.img" >> /mnt/boot/loader/entries/arch.conf
 echo "initrd /initramfs-linux-lts.img" >> /mnt/boot/loader/entries/arch.conf
 echo "options root=\"PARTUUID=XXXX\" rw" >> /mnt/boot/loader/entries/arch.conf
 
-arch_chroot "partuuid=$(blkid | grep archroot | sed -r "s/.*?PARTUUID=\"(.*?)\"/\1/g")"
-arch_chroot "sed -i "s/PARTUUID=XXXX/PARTUUID=${partuuid}/" /boot/loader/entries/arch.conf"
+arch_chroot "partuuid=$(blkid | grep archroot | sed -r 's/.*?PARTUUID=\"(.*?)\"/\1/g')"
+arch_chroot "sed -i 's/PARTUUID=XXXX/PARTUUID=${partuuid}/' /boot/loader/entries/arch.conf"
 
 
 
