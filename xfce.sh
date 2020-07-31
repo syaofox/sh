@@ -65,16 +65,21 @@ pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
 
 
 echo "Configing Archlinuxcn"
-rm -rf /etc/pacman.d/gnupg
-pacman-key --init
-pacman-key --populate archlinux
-pacman-key --populate archlinuxcn
+
 
 echo "[archlinuxcn]" >> /etc/pacman.conf
 echo "Server = https://mirrors.bfsu.edu.cn/archlinuxcn/\$arch" >> /etc/pacman.conf
 
 pacman -Syy
+
+rm -rf /etc/pacman.d/gnupg
+pacman-key --init
+pacman-key --populate archlinux
+pacman-key --populate archlinuxcn
+
 pacman -S archlinuxcn-keyring --noconfirm
+echo "Install yay"
+
 pacman -S yay
 
 echo "Install Themes"
