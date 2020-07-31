@@ -1,4 +1,6 @@
 #!/bin/bash
+
+set -e
 echo "Setting Mirrors"
 
 pacman -Syyy
@@ -56,9 +58,9 @@ pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
 # yay
 su syaofox -c "git clone https://aur.archlinux.org/yay.git"
 su syaofox -c "cd yay"
-makepkg -si PKGBUILD
-yay -S mint-themes mint-x-icons mint-y-icons 
-yay -S lightdm-webkit-theme-aether-git 
+su syaofox -c "makepkg -si PKGBUILD"
+su syaofox -c "yay -S mint-themes mint-x-icons mint-y-icons"
+su syaofox -c "yay -S lightdm-webkit-theme-aether-git"
 
 
 rm -rf /etc/pacman.d/gnupg
@@ -77,8 +79,8 @@ su syaofox -c "yay -S mint-themes mint-x-icons mint-y-icons"
 # yay -S lightdm-webkit-theme-aether-git
 
 
-git clone git@github.com:NoiSek/Aether.git ~/.Aether
-cp --recursive ~/.Aether /usr/share/lightdm-webkit/themes/Aether
+git clone git@github.com:NoiSek/Aether.git /home/syaofox/.Aether
+cp --recursive /home/syaofox/.Aether /usr/share/lightdm-webkit/themes/Aether
 
 sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = lightdm-webkit-theme-aether #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
 sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf

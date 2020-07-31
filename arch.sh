@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 #分区 gpt,uefi分区512M
 
 function arch_chroot() {
