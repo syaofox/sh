@@ -47,9 +47,36 @@ pacman --needed -S file-roller p7zip unrar unace lrzip squashfs-tools --noconfir
 pacman --needed -S ffmpegthumbnailer ffmpegthumbs --noconfirm
 
 pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
-#su syaofox
-#yay -S mint-themes mint-x-icons mint-y-icons 
-#yay -S lightdm-webkit-theme-aether-git 
-#su root
-#git clone git@github.com:NoiSek/Aether.git ~/.Aether
-#cp --recursive ~/.Aether /usr/share/lightdm-webkit/themes/Aether
+
+su syaofox
+
+# yay
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si PKGBUILD
+yay -S mint-themes mint-x-icons mint-y-icons 
+yay -S lightdm-webkit-theme-aether-git 
+su root
+
+rm -rf /etc/pacman.d/gnupg
+pacman-key --init
+pacman-key --populate archlinux
+pacman-key --populate archlinuxcn
+
+echo "[archlinuxcn]" >> /etc/pacman.conf
+echo "Server = https://mirrors.bfsu.edu.cn/archlinuxcn/\$arch" >> /etc/pacman.conf
+
+pacman -Syy
+pacman -S archlinuxcn-keyring
+
+su syaofox
+yay -S mint-themes mint-x-icons mint-y-icons
+# yay -S lightdm-webkit-theme-aether-git
+
+su root
+
+git clone git@github.com:NoiSek/Aether.git ~/.Aether
+cp --recursive ~/.Aether /usr/share/lightdm-webkit/themes/Aether
+
+sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = lightdm-webkit-theme-aether #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
+sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
