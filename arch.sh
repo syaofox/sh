@@ -1,7 +1,7 @@
 #分区 gpt,uefi分区512M
 
 #mkfs.fat -F32 /dev/sda1
-#mkfs.ext4 -L archroot/dev/sda2
+#mkfs.ext4 -L archroot /dev/sda2
 
 #mount /dev/sda2 /mnt
 
@@ -9,7 +9,9 @@
 #mkdir /mnt/boot
 #mount /dev/sda1 /mnt/boot
 
-
+function arch_chroot() {
+    arch-chroot /mnt "/bin/bash" -c "${1}"
+}
 
 echo "时间同步"
 timedatectl set-ntp true
@@ -30,7 +32,7 @@ echo "生成fstab"
 genfstab -U -p /mnt >> /mnt/etc/fstab
 
 echo "切换系统"
-arch-chroot /mnt
+arch-chroot /mnt /bin/bash
 
 echo "设置交换文件"
 
