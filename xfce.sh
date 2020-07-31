@@ -75,9 +75,10 @@ pacman -Syy
 rm -rf /etc/pacman.d/gnupg
 pacman-key --init
 pacman-key --populate archlinux
+pacman -S archlinuxcn-keyring --noconfirm
 pacman-key --populate archlinuxcn
 
-pacman -S archlinuxcn-keyring --noconfirm
+
 echo "Install yay"
 
 pacman -S yay
