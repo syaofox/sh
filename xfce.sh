@@ -30,7 +30,7 @@ systemctl enable lightdm
 pacman -S --needed xcape cifs-utils --noconfirm
 
 mkdir -p /media/smb
-chown -R syaofox:syaofox  /media/smb
+chown -R syaofox  /media/smb
 
 
 mkdir -p /media/smb/omvnas/me
@@ -56,11 +56,10 @@ pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
 
 
 # yay
-su syaofox -c "git clone https://aur.archlinux.org/yay.git"
-su syaofox -c "cd yay"
-su syaofox -c "makepkg -si PKGBUILD"
-su syaofox -c "yay -S mint-themes mint-x-icons mint-y-icons"
-su syaofox -c "yay -S lightdm-webkit-theme-aether-git"
+#su syaofox -c "git clone https://aur.archlinux.org/yay.git /tmp/yay"
+#su syaofox -c "cd /tmp/yay"
+#su syaofox -c "makepkg -si PKGBUILD"
+
 
 
 rm -rf /etc/pacman.d/gnupg
@@ -73,11 +72,12 @@ echo "Server = https://mirrors.bfsu.edu.cn/archlinuxcn/\$arch" >> /etc/pacman.co
 
 pacman -Syy
 pacman -S  archlinuxcn-keyring
-
+pacman -S yay
 
 su syaofox -c "yay -S mint-themes mint-x-icons mint-y-icons"
-# yay -S lightdm-webkit-theme-aether-git
+su syaofox -c "yay -S lightdm-webkit-theme-aether-git"
 
+# yay -S lightdm-webkit-theme-aether-git
 
 git clone git@github.com:NoiSek/Aether.git /home/syaofox/.Aether
 cp --recursive /home/syaofox/.Aether /usr/share/lightdm-webkit/themes/Aether
