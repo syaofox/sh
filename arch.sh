@@ -1,3 +1,15 @@
+#分区 gpt,uefi分区512M
+
+#mkfs.fat -F32 /dev/sda1
+#mkfs.ext4 -L archroot/dev/sda2
+
+#mount /dev/sda2 /mnt
+
+#system-d bootloader
+#mkdir /mnt/boot
+#mount /dev/sda1 /mnt/boot
+
+
 
 echo "时间同步"
 timedatectl set-ntp true
@@ -69,6 +81,29 @@ echo "添加用户syaofox"
 useradd -m -g users -G wheel -s /bin/bash syaofox
 passwd syaofox
 echo 'syaofox ALL=(ALL:ALL) ALL' | EDITOR='tee -a' visudo
+
+
+echo "systemd-bootloader"
+
+pacman -S efibootmgr
+
+bootctl install
+
+sed -i '/#timeout 3/s/^#//g' /boot/loader/loader.conf
+
+
+
+echo "title Arch Linux" >> /boot/loader/entries/arch.conf
+echo "linux /vmlinuz-linux-lts" >> /boot/loader/entries/arch.conf
+echo "initrd /intel-ucode.img" >> /boot/loader/entries/arch.conf
+echo "initrd /initramfs-linux-lts.img" >> /boot/loader/entries/arch.conf
+echo "options root=\"PARTUUID=XXXX\" rw" >> /boot/loader/entries/arch.conf
+
+partuuid=$(blkid | grep archroot | sed -r "s/.*?PARTUUID=\"(.*?)\"/\1/g")
+sed -i "s/PARTUUID=XXXX/PARTUUID=${partuuid}/" /boot/loader/entries/arch.conf
+
+
+
 
 exit
 
