@@ -64,7 +64,7 @@ echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
 #echo "LC_COLLATE=C" >> /etc/locale.conf
 
 echo "设置时区"
-arch_chroot "echo ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime"
+arch_chroot "ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime"
 arch_chroot "timedatectl set-ntp true"
 arch_chroot "hwclock --systohc --utc"
 
@@ -104,12 +104,7 @@ echo "title Arch Linux" >> /mnt/boot/loader/entries/arch.conf
 echo "linux /vmlinuz-linux-lts" >> /mnt/boot/loader/entries/arch.conf
 echo "initrd /intel-ucode.img" >> /mnt/boot/loader/entries/arch.conf
 echo "initrd /initramfs-linux-lts.img" >> /mnt/boot/loader/entries/arch.conf
-echo "options root=\"PARTUUID=XXXX\" rw" >> /mnt/boot/loader/entries/arch.conf
+partuuid=$(blkid | grep archroot | sed -r 's/.*?PARTUUID=\"(.*?)\"/\1/g')
+echo "options root=\"PARTUUID=${partuuid}\" rw" >> /mnt/boot/loader/entries/arch.conf
 
-arch_chroot "partuuid=$(blkid | grep archroot | sed -r 's/.*?PARTUUID=\"(.*?)\"/\1/g')"
-arch_chroot "sed -i 's/PARTUUID=XXXX/PARTUUID=${partuuid}/' /boot/loader/entries/arch.conf"
-
-
-
-
-#umount -R /mnt
+umount -R /mnt
