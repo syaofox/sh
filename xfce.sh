@@ -58,7 +58,7 @@ sudo pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconf
 
 
 
-yay
+echo "Install yay"
 git clone https://aur.archlinux.org/yay.git
 cd yay
 makepkg -si PKGBUILD
