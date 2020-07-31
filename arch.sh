@@ -1,5 +1,10 @@
 #分区 gpt,uefi分区512M
 
+function arch_chroot() {
+    arch-chroot /mnt "/bin/bash" -c "${1}"
+}
+
+
 echo "format"
 
 mkfs.fat -F32 /dev/sda1
@@ -11,9 +16,6 @@ mount /dev/sda2 /mnt
 mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
 
-function arch_chroot() {
-    arch-chroot /mnt "/bin/bash" -c "${1}"
-}
 
 
 
