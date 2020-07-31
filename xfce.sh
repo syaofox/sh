@@ -1,3 +1,4 @@
+#!/bin/bash
 pacman -S --needed mtools dosfstools xdg-utils xdg-user-dirs reflector --noconfirm
 pacman -S --needed xorg xorg-xinit xorg-server --noconfirm
 pacman -S --needed gstreamer gst-libav gst-plugins-base gst-plugins-good gstreamer-vaapi  gst-plugins-good --noconfirm
