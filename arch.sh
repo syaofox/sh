@@ -5,6 +5,8 @@ set -e
 function arch_chroot() {
     arch-chroot /mnt "/bin/bash" -c "${1}"
 }
+
+echo "Server = https://mirrors.bfsu.edu.cn/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 pacman -Syyy
 
 echo "Format & Mount"
