@@ -1,13 +1,15 @@
 #分区 gpt,uefi分区512M
 
-#mkfs.fat -F32 /dev/sda1
-#mkfs.ext4 -L archroot /dev/sda2
+echo "format"
 
-#mount /dev/sda2 /mnt
+mkfs.fat -F32 /dev/sda1
+mkfs.ext4 -L archroot /dev/sda2
+
+mount /dev/sda2 /mnt
 
 #system-d bootloader
-#mkdir /mnt/boot
-#mount /dev/sda1 /mnt/boot
+mkdir /mnt/boot
+mount /dev/sda1 /mnt/boot
 
 function arch_chroot() {
     arch-chroot /mnt "/bin/bash" -c "${1}"
@@ -108,4 +110,4 @@ arch_chroot "sed -i 's/PARTUUID=XXXX/PARTUUID=${partuuid}/' /boot/loader/entries
 
 
 
-umount -R /mnt
+#umount -R /mnt
