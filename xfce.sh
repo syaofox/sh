@@ -51,15 +51,15 @@ pacman --needed -S ffmpegthumbnailer ffmpegthumbs --noconfirm
 
 pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
 
-su syaofox
+
 
 # yay
-git clone https://aur.archlinux.org/yay.git
-cd yay
+su syaofox -c "git clone https://aur.archlinux.org/yay.git"
+su syaofox -c "cd yay"
 makepkg -si PKGBUILD
 yay -S mint-themes mint-x-icons mint-y-icons 
 yay -S lightdm-webkit-theme-aether-git 
-su root
+
 
 rm -rf /etc/pacman.d/gnupg
 pacman-key --init
@@ -72,11 +72,10 @@ echo "Server = https://mirrors.bfsu.edu.cn/archlinuxcn/\$arch" >> /etc/pacman.co
 pacman -Syy
 pacman -S  archlinuxcn-keyring
 
-su syaofox
-yay -S mint-themes mint-x-icons mint-y-icons
+
+su syaofox -c "yay -S mint-themes mint-x-icons mint-y-icons"
 # yay -S lightdm-webkit-theme-aether-git
 
-su root
 
 git clone git@github.com:NoiSek/Aether.git ~/.Aether
 cp --recursive ~/.Aether /usr/share/lightdm-webkit/themes/Aether
