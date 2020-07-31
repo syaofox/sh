@@ -3,7 +3,7 @@
 set -e
 echo "Setting Mirrors"
 
-pacman -Syyy
+sudo pacman -Syyy
 sudo pacman -S reflector
 sudo reflector --verbose -c CN --sort rate  -a 6 -p https --save /etc/pacman.d/mirrorlist
 # Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
