@@ -67,7 +67,7 @@ echo "[archlinuxcn]" >> /etc/pacman.conf
 echo "Server = https://mirrors.bfsu.edu.cn/archlinuxcn/\$arch" >> /etc/pacman.conf
 
 pacman -Syy
-pacman -S archlinuxcn-keyring
+pacman -S  archlinuxcn-keyring
 
 su syaofox
 yay -S mint-themes mint-x-icons mint-y-icons
