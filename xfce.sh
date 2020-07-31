@@ -62,7 +62,7 @@ echo "Install yay"
 git clone https://aur.archlinux.org/yay.git
 cd yay
 makepkg -si PKGBUILD
-
+rm -rf yay
 
 echo "Configing Archlinuxcn"
 
