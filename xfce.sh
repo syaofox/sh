@@ -1,4 +1,10 @@
 #!/bin/bash
+echo "Setting Mirrors"
+pacman -Syyy
+pacman -S reflector
+reflector --verbose -c CN --sort rate  -a 6 -p https --save /etc/pacman.d/mirrorlist
+#Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
+pacman -Syyy
 pacman -S --needed mtools dosfstools xdg-utils xdg-user-dirs reflector --noconfirm
 pacman -S --needed xorg xorg-xinit xorg-server --noconfirm
 pacman -S --needed gstreamer gst-libav gst-plugins-base gst-plugins-good gstreamer-vaapi  gst-plugins-good --noconfirm
