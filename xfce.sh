@@ -27,18 +27,21 @@ systemctl enable lightdm
 
 pacman -S --needed xcape cifs-utils --noconfirm
 
-mkdir -p $HOME/smb/omvnas/share
-mkdir -p $HOME/smb/omvnas/me
-mkdir -p $HOME/smb/omvnas/kid
-mkdir -p $HOME/smb/openwrt/share
+mkdir -p /media/smb
+chown -R syaofox:syaofox  /media/smb
+
+
+mkdir -p /media/smb/omvnas/me
+mkdir -p /media/smb/omvnas/kid
+mkdir -p /media/smb/openwrt/share
 
 echo '10.10.10.1	openwrt' >> /etc/hosts
 echo '10.10.10.3	openwrt' >> /etc/hosts
 
-echo '//omvnas/share '$HOME'/smb/omvnas/share cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' >> /etc/fstab
-echo '//omvnas/me '$HOME'/smb/omvnas/me cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' >> /etc/fstab
-echo '//omvnas/kid '$HOME'/smb/omvnas/kid cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' >> /etc/fstab
-echo '//openwrt/share '$HOME'/smb/openwrt/share cifs  username=me,password=0928,vers=2.0,noauto,user 0 0' >> /etc/fstab
+echo '//omvnas/share /media/smb/omvnas/share cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' >> /etc/fstab
+echo '//omvnas/me /media/smb/omvnas/me cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' >> /etc/fstab
+echo '//omvnas/kid /media/smb/omvnas/kid cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' >> /etc/fstab
+echo '//openwrt/share /media/smb/openwrt/share cifs  username=me,password=0928,vers=2.0,noauto,user 0 0' >> /etc/fstab
 
 pacman --needed -S pavucontrol libcanberra libcanberra-pulse --noconfirm
 
