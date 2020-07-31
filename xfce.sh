@@ -1,12 +1,11 @@
-PKG+='mtools dosfstools xdg-utils xdg-user-dirs reflector '
-PKG+='xorg xorg-xinit xorg-server '
-PKG+='gstreamer gst-libav gst-plugins-base gst-plugins-good gstreamer-vaapi  gst-plugins-good '
-PKG+='noto-fonts-cjk ttf-dejavu wqy-microhei wqy-microhei-lite wqy-zenhei '
-PKG+='pulseaudio pulseaudio-alsa '
-PKG+='bluez bluez-utils '
-PKG+='mesa xf86-video-vmware haveged'
+pacman -S --needed mtools dosfstools xdg-utils xdg-user-dirs reflector --noconfirm
+pacman -S --needed xorg xorg-xinit xorg-server --noconfirm
+pacman -S --needed gstreamer gst-libav gst-plugins-base gst-plugins-good gstreamer-vaapi  gst-plugins-good --noconfirm
+pacman -S --needed noto-fonts-cjk ttf-dejavu wqy-microhei wqy-microhei-lite wqy-zenhei --noconfirm
+pacman -S --needed pulseaudio pulseaudio-alsa --noconfirm
+pacman -S --needed bluez bluez-utils --noconfirm
+pacman -S --needed mesa xf86-video-vmware haveged --noconfirm
 
-pacman -S --needed ${PKG} --noconfirm
 
 systemctl enable bluetooth
 systemctl start haveged
@@ -40,9 +39,9 @@ pacman --needed -S file-roller p7zip unrar unace lrzip squashfs-tools --noconfir
 pacman --needed -S ffmpegthumbnailer ffmpegthumbs --noconfirm
 
 pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
-su syaofox
-yay -S mint-themes mint-x-icons mint-y-icons 
-yay -S lightdm-webkit-theme-aether-git 
-su root
-git clone git@github.com:NoiSek/Aether.git ~/.Aether
-cp --recursive ~/.Aether /usr/share/lightdm-webkit/themes/Aether
+#su syaofox
+#yay -S mint-themes mint-x-icons mint-y-icons 
+#yay -S lightdm-webkit-theme-aether-git 
+#su root
+#git clone git@github.com:NoiSek/Aether.git ~/.Aether
+#cp --recursive ~/.Aether /usr/share/lightdm-webkit/themes/Aether
