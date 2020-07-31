@@ -22,8 +22,7 @@ echo "Setting ntp time"
 timedatectl set-ntp true
 
 echo "Setting Mirrors"
-pacman -Syyy
-pacman -S reflector
+pacman -S --needed reflector
 reflector --verbose -c CN --sort rate  -a 6 -p https --save /etc/pacman.d/mirrorlist
 #Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
 pacman -Syyy
