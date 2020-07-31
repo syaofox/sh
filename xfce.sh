@@ -47,11 +47,11 @@ echo '//omvnas/kid /media/smb/omvnas/kid cifs  username=me,password=0928,vers=3.
 echo '//openwrt/share /media/smb/openwrt/share cifs  username=me,password=0928,vers=2.0,noauto,user 0 0' |sudo tee /etc/fstab
 
 echo "Install pkgs"
-sudo pacman --needed -S pavucontrol libcanberra libcanberra-pulse --noconfirm
+sudo pacman -S --needed pavucontrol libcanberra libcanberra-pulse --noconfirm
 
-sudo pacman --needed -S file-roller p7zip unrar unace lrzip squashfs-tools --noconfirm
+sudo pacman -S --needed file-roller p7zip unrar unace lrzip squashfs-tools --noconfirm
 
-sudo pacman --needed -S ffmpegthumbnailer ffmpegthumbs --noconfirm
+sudo pacman -S --needed ffmpegthumbnailer ffmpegthumbs --noconfirm
 
 echo "Install Themes"
 sudo pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
