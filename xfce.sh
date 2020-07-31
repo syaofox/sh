@@ -38,13 +38,13 @@ sudo mkdir -p /media/smb/omvnas/me
 sudo mkdir -p /media/smb/omvnas/kid
 sudo mkdir -p /media/smb/openwrt/share
 
-sudo echo '10.10.10.1	openwrt' >> /etc/hosts
-sudo echo '10.10.10.3	omvnas' >> /etc/hosts
+echo '10.10.10.1	openwrt' |sudo tee /etc/hosts
+echo '10.10.10.3	omvnas' |sudo tee /etc/hosts
 
-sudo echo '//omvnas/share /media/smb/omvnas/share cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' >> /etc/fstab
-sudo echo '//omvnas/me /media/smb/omvnas/me cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' >> /etc/fstab
-sudo echo '//omvnas/kid /media/smb/omvnas/kid cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' >> /etc/fstab
-sudo echo '//openwrt/share /media/smb/openwrt/share cifs  username=me,password=0928,vers=2.0,noauto,user 0 0' >> /etc/fstab
+echo '//omvnas/share /media/smb/omvnas/share cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee /etc/fstab
+echo '//omvnas/me /media/smb/omvnas/me cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee /etc/fstab
+echo '//omvnas/kid /media/smb/omvnas/kid cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee /etc/fstab
+echo '//openwrt/share /media/smb/openwrt/share cifs  username=me,password=0928,vers=2.0,noauto,user 0 0' |sudo tee /etc/fstab
 
 echo "Install pkgs"
 sudo pacman --needed -S pavucontrol libcanberra libcanberra-pulse --noconfirm
@@ -67,8 +67,8 @@ makepkg -si PKGBUILD
 echo "Configing Archlinuxcn"
 
 
-sudo echo "[archlinuxcn]" >> /etc/pacman.conf
-sudo echo "Server = https://mirrors.bfsu.edu.cn/archlinuxcn/\$arch" >> /etc/pacman.conf
+echo "[archlinuxcn]" |sudo tee /etc/pacman.conf
+echo "Server = https://mirrors.bfsu.edu.cn/archlinuxcn/\$arch" |sudo tee /etc/pacman.conf
 
 sudo pacman -Syy
 
