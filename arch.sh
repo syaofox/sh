@@ -5,7 +5,7 @@ set -e
 function arch_chroot() {
     arch-chroot /mnt "/bin/bash" -c "${1}"
 }
-
+pacman -Syyy
 
 echo "Format & Mount"
 
