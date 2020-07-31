@@ -66,7 +66,6 @@ arch_chroot "hwclock --systohc --utc"
 
 echo "设置hostname"
 echo "vm-arch" > /mnt/etc/hostname
-vim /etc/hosts
 echo "127.0.0.1 localhost" >> /mnt/etc/hosts
 echo "::1 localhost" >> /mnt/etc/hosts
 echo "127.0.1.1 vm-arch.localdomain	vm-arch" >> /mnt/etc/hosts
@@ -109,4 +108,4 @@ arch_chroot "sed -i 's/PARTUUID=XXXX/PARTUUID=${partuuid}/' /boot/loader/entries
 
 
 
-mount -R /mnt
+umount -R /mnt
