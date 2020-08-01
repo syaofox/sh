@@ -28,6 +28,7 @@ USER_PASSWORD="0928"
 
 MOUNT_POINT="/mnt"
 
+IS_NVME="no"
 
 function print_line() {
     printf "%$(tput cols)s\n" | tr ' ' '-'
@@ -110,6 +111,14 @@ function uefi_bios_detect() {
         UEFI_BIOS_TEXT="UEFI detected"
     else
         UEFI_BIOS_TEXT="BIOS detected"
+    fi
+}
+
+function check_nvme(){
+    if [[ "$(lsblk | grep nvme)" != "" ]]; then
+        IS_NVME="yes"
+    else
+        IS_NVME="no"
     fi
 }
 
@@ -237,12 +246,19 @@ function set_uefi_boot_type(){
 
 }
 
+
+
 function format_devices() {
     # TODO 
     # Support LVM?
     sgdisk --zap-all ${INSTALL_DEVICE}
     local boot_partion="${INSTALL_DEVICE}1"
     local system_partion="${INSTALL_DEVICE}2"
+
+    if [ ${IS_NVME}=="yes" ]; then
+        boot_partion="${INSTALL_DEVICE}p1"
+        system_partion="${INSTALL_DEVICE}p2"
+    fi
 
     [[ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ]] && print_error "Boot method isn't be detected!"
     [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${boot_partion}
@@ -383,6 +399,13 @@ function system_install() {
 }
 
 function install() {
+
+     if [[ ${INSTALL_DEVICE} = "grub" ]]; then
+        echo "havenot choose instal divice"
+         exit
+    fi
+
+
     confirm_operation "Operation is irreversible, Are you sure?"
     if [[ ${OPTION} = "y" ]]; then
         system_install
@@ -405,12 +428,14 @@ if (( $EUID != 0 )); then
 fi
 
 uefi_bios_detect
+check_nvme
 #pause
 checklist=( 0 0 0 0 0 0 0 )
 
 while true; do
     print_title "ARCHLINUX ULTIMATE INSTALL "
     echo " ${UEFI_BIOS_TEXT}"
+    echo " nvmedisk ${IS_NVME}"
     echo ""
     echo " 1) $(mainmenu_item "${checklist[1]}"  "Set Mirrors"             "${MIRRORLIST_COUNTRY}" )"
     echo " 2) $(mainmenu_item "${checklist[2]}"  "Select Device"              "${INSTALL_DEVICE}" )"
