@@ -30,7 +30,7 @@ pacman -Syyy
 
 echo "Installing base"
 # pacstrap -i /mnt base linux linux-headers linux-lts linux-lts-headers linux-firmware intel-ucode sudo nano vim git
-pacstrap -i /mnt base base-devel linux-lts linux-lts-headers linux-firmware pacman-contrib intel-ucode sudo vim git 
+pacstrap -i /mnt base base-devel linux-lts linux-lts-headers linux-firmware pacman-contrib intel-ucode sudo vim git dnsutils
 
 echo "Genning fstab"
 genfstab -U -p /mnt >> /mnt/etc/fstab

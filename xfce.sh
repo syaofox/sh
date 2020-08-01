@@ -2,6 +2,13 @@
 
 set -e
 
+function systemd_resolved(){
+    sudo systemctl start systemd-resolved.service
+    sudo systemctl enable systemd-resolved.service
+    sudo cp /etc/resolv.conf /etc/resolv.conf.bak
+    sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+}
+
 function install_smb(){
     sudo mkdir -p /media/smb
     sudo chown -R syaofox  /media/smb
@@ -11,8 +18,8 @@ function install_smb(){
     sudo mkdir -p /media/smb/omvnas/share
     sudo mkdir -p /media/smb/openwrt/share
 
-    echo '10.10.10.1	openwrt' |sudo tee -a /etc/hosts
-    echo '10.10.10.3	omvnas' |sudo tee -a /etc/hosts
+    #echo '10.10.10.1	openwrt' |sudo tee -a /etc/hosts
+    #echo '10.10.10.3	omvnas' |sudo tee -a /etc/hosts
 
     echo '//omvnas/share /media/smb/omvnas/share cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee -a /etc/fstab
     echo '//omvnas/me /media/smb/omvnas/me cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee -a /etc/fstab
@@ -93,7 +100,7 @@ function install_pkg(){
     sudo pacman -S --needed pulseaudio pulseaudio-alsa --noconfirm
     sudo pacman -S --needed bluez bluez-utils --noconfirm
     sudo pacman -S --needed mesa xf86-video-vmware haveged --noconfirm
-
+    sudo pacman -S --needed traceroute bind-tools  ntfs-3g btrfs-progs exfat-utils gptfdisk  gvfs-fuse fuse2 fuse3 fuseiso cifs-utils smbclient nfs-utils gvfs gvfs-smb
     echo "enable Server"
     sudo systemctl enable bluetooth
     sudo systemctl start haveged
@@ -105,6 +112,9 @@ set_mirrors
 
 echo "Install pkgs"
 install_pkg
+
+echo "enable systemd_resolved"
+systemd_resolved
 
 echo "Setting smb"
 install_smb
