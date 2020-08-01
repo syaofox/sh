@@ -376,7 +376,7 @@ function bootloader_install() {
 }
 
 function system_install() {
-    format_devices
+    #format_devices
     #configure_mirrorlist
 
     timedatectl set-ntp true
@@ -430,7 +430,7 @@ fi
 uefi_bios_detect
 check_nvme
 #pause
-checklist=( 0 0 0 0 0 0 0 )
+checklist=( 0 0 0 0 0 0 0 0 )
 
 while true; do
     print_title "ARCHLINUX ULTIMATE INSTALL "
@@ -438,12 +438,13 @@ while true; do
     echo " nvmedisk ${IS_NVME}"
     echo ""
     echo " 1) $(mainmenu_item "${checklist[1]}"  "Set Mirrors"             "${MIRRORLIST_COUNTRY}" )"
-    echo " 2) $(mainmenu_item "${checklist[2]}"  "Select Device"              "${INSTALL_DEVICE}" )"
-    echo " 3) $(mainmenu_item "${checklist[3]}"  "Set SwapfileSize"              "${SWAP_COUNT}M" )"
-    echo " 4) $(mainmenu_item "${checklist[4]}"  "Set Hostname"              "${HOSTNAME}" )"
-    echo " 5) $(mainmenu_item "${checklist[5]}"  "Set Root Password"          "${ROOT_PASSWORD}" )"
-    echo " 6) $(mainmenu_item "${checklist[6]}"  "Set Login User"             "${USER_NAME}/${USER_PASSWORD}" )"
-    echo " 7) $(mainmenu_item "${checklist[7]}"  "Set UEFI boot type"             "${UEFI_BOOT_TYPE}" )"
+    echo " 2) $(mainmenu_item "${checklist[3]}"  "Select Device"              "${INSTALL_DEVICE}" )"
+    echo " 3) $(mainmenu_item "${checklist[3]}"  "Format Devices"              "${INSTALL_DEVICE}" )"
+    echo " 4) $(mainmenu_item "${checklist[4]}"  "Set SwapfileSize"              "${SWAP_COUNT}M" )"
+    echo " 5) $(mainmenu_item "${checklist[5]}"  "Set Hostname"              "${HOSTNAME}" )"
+    echo " 6) $(mainmenu_item "${checklist[6]}"  "Set Root Password"          "${ROOT_PASSWORD}" )"
+    echo " 7) $(mainmenu_item "${checklist[7]}"  "Set Login User"             "${USER_NAME}/${USER_PASSWORD}" )"
+    echo " 8) $(mainmenu_item "${checklist[8]}"  "Set UEFI boot type"             "${UEFI_BOOT_TYPE}" )"
     
     echo ""
     echo " i) install"
@@ -455,11 +456,12 @@ while true; do
         case ${OPT} in
             1) set_mirrors && checklist[1]=1;;
             2) select_device && checklist[2]=1;;
-            3) Set_SwapfileSize && checklist[3]=1;;
-            4) set_hostname && checklist[4]=1;;
-            5) set_root_password && checklist[5]=1;;
-            6) set_login_user && checklist[6]=1;;
-            7) set_uefi_boot_type && checklist[7]=1;;
+            3) format_devices && checklist[3]=1;;
+            4) Set_SwapfileSize && checklist[4]=1;;
+            5) set_hostname && checklist[5]=1;;
+            6) set_root_password && checklist[6]=1;;
+            7) set_login_user && checklist[7]=1;;
+            8) set_uefi_boot_type && checklist[8]=1;;
             "i") install;;
             "q") exit 0;;
             *) invalid_option;;
