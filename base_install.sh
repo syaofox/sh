@@ -28,6 +28,9 @@ USER_PASSWORD="0928"
 
 MOUNT_POINT="/mnt"
 
+BOOT_PARTION=
+ROOT_PARTION=
+
 IS_NVME="no"
 
 function print_line() {
@@ -160,24 +163,100 @@ function set_mirrors(){
     pacman -Syyy --noconfirm
 }
 
-function select_device() {
-    local devices_list=(`lsblk -d | awk 'NR>1 { print "/dev/" $1 }'`)
+function select_partion() {
+    local partions_list=(`fdisk -l ${INSTALL_DEVICE} | grep '^/dev' | cut -d' ' -f1`)
+    echo ${partions_list}
     PS3=${PROMPT_1}
-    echo -e "Select device to install Arch Linux:\n"
-    select device in "${devices_list[@]}"; do
-        if contains_element ${device} ${devices_list[@]}; then 
-            confirm_operation "Data on ${device} will be damaged"
+    echo -e "Select Boot Partion:\n"
+    select bpartion in "${partions_list[@]}"; do
+        if contains_element ${bpartion} ${partions_list[@]}; then 
+            # confirm_operation "Data on ${bpartion} will be damaged"
+            BOOT_PARTION=${bpartion}
             break
         else
             invalid_option
         fi
     done
 
-    if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
-        INSTALL_DEVICE=${device}
-        return 0
-    fi
+    # if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
+    #     BOOT_PARTION=${bpartion}
+    # fi
 
+    echo -e "Select Root Partion:\n"
+    select rpartion in "${partions_list[@]}"; do
+        if contains_element ${rpartion} ${partions_list[@]}; then 
+            # confirm_operation "Data on ${rpartion} will be damaged"
+            ROOT_PARTION=${rpartion}
+            break
+        else
+            invalid_option
+        fi
+    done
+
+    # if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]]; then
+    #     ROOT_PARTION=${rpartion}
+    # fi
+    confirm_operation "Data on ${bpartion}  ${rpartion} will be damaged,continute?"
+    if [[ ${OPTION} != "y" ]] && [[ ${OPTION} != "" ]]; then
+        echo "nothing changed"
+        pause
+        return
+    fi
+  
+    if [[ ${BOOT_PARTION} != "" ]] && [[ ${ROOT_PARTION} != "" ]]; then
+        [[ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ]] && print_error "Boot method isn't be detected!"
+        [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${BOOT_PARTION}
+        [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${BOOT_PARTION}
+
+        printf "n\n2\n\n\n8300\nw\ny\n"| gdisk ${INSTALL_DEVICE}
+        yes | mkfs.ext4  -L archroot  ${ROOT_PARTION}
+
+        mount ${ROOT_PARTION} /mnt
+        
+        if [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] ; then
+            if [[ ${UEFI_BOOT_TYPE} = "grub" ]]; then
+                mkdir -p /mnt/boot/efi && mount ${BOOT_PARTION} /mnt/boot/efi
+            elif  [[ ${UEFI_BOOT_TYPE} = "systemd" ]]; then
+                    mkdir -p /mnt/boot && mount ${BOOT_PARTION} /mnt/boot
+            fi
+        fi
+
+    fi
+    lsblk
+    pause
+    return 1
+}
+
+function select_device() {
+
+    # sudo fdisk -l /dev/nvme0n1 | grep '^/dev' | cut -d' ' -f1
+
+    local devices_list=(`lsblk -d | awk 'NR>1 { print "/dev/" $1 }'`)
+    PS3=${PROMPT_1}
+    echo -e "Select device to install Arch Linux:\n"
+    select device in "${devices_list[@]}"; do
+        if contains_element ${device} ${devices_list[@]}; then 
+            #confirm_operation "Data on ${device} will be damaged"
+            INSTALL_DEVICE=${device}
+            cfdisk ${INSTALL_DEVICE}
+            break
+        else
+            invalid_option
+        fi
+    done
+
+    # if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
+    #     INSTALL_DEVICE=${device}
+
+    #     confirm_operation "${INSTALL_DEVICE} data will lost, Are you sure?"
+    #     if [[ ${OPTION} = "y" ]] || [[ ${OPTION} == "" ]];  then
+    #         cfdisk ${INSTALL_DEVICE}
+    #         return 1
+    #     fi
+
+    #     return 0
+    # fi
+    pause
     return 1
 }
 
@@ -248,12 +327,24 @@ function set_uefi_boot_type(){
 
 
 
-function format_devices() {
+function format_devicesXXXX() {
     # TODO 
     # Support LVM?
+
+    if [[ ${INSTALL_DEVICE} == "" ]]; then
+        checklist[3]=0
+        return
+
+        exit
+    fi
+
     confirm_operation "${INSTALL_DEVICE} data will lost, Are you sure?"
     if [[ ${OPTION} = "y" ]] || [[ ${OPTION} == "" ]];  then
-        
+        cfdisk ${INSTALL_DEVICE}
+        return
+
+        exit
+
         sgdisk --zap-all ${INSTALL_DEVICE}
         local boot_partion="${INSTALL_DEVICE}1"
         local system_partion="${INSTALL_DEVICE}2"
@@ -275,9 +366,9 @@ function format_devices() {
         if [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] ; then
             if [[ ${UEFI_BOOT_TYPE} = "grub" ]]; then
                 mkdir -p /mnt/boot/efi && mount ${boot_partion} /mnt/boot/efi
-        elif  [[ ${UEFI_BOOT_TYPE} = "systemd" ]]; then
-                mkdir -p /mnt/boot && mount ${boot_partion} /mnt/boot
-        fi
+            elif  [[ ${UEFI_BOOT_TYPE} = "systemd" ]]; then
+                    mkdir -p /mnt/boot && mount ${boot_partion} /mnt/boot
+            fi
         fi
     else 
         checklist[3]=0
@@ -444,13 +535,14 @@ while true; do
     echo " nvmedisk ${IS_NVME}"
     echo ""
     echo " 1) $(mainmenu_item "${checklist[1]}"  "Set Mirrors"             "${MIRRORLIST_COUNTRY}" )"
-    echo " 2) $(mainmenu_item "${checklist[2]}"  "Select Device"              "${INSTALL_DEVICE}" )"
-    echo " 3) $(mainmenu_item "${checklist[3]}"  "Format Devices"              "${INSTALL_DEVICE}" )"
-    echo " 4) $(mainmenu_item "${checklist[4]}"  "Set SwapfileSize"              "${SWAP_COUNT}M" )"
-    echo " 5) $(mainmenu_item "${checklist[5]}"  "Set Hostname"              "${HOSTNAME}" )"
-    echo " 6) $(mainmenu_item "${checklist[6]}"  "Set Root Password"          "${ROOT_PASSWORD}" )"
-    echo " 7) $(mainmenu_item "${checklist[7]}"  "Set Login User"             "${USER_NAME}/${USER_PASSWORD}" )"
-    echo " 8) $(mainmenu_item "${checklist[8]}"  "Set UEFI boot type"             "${UEFI_BOOT_TYPE}" )"
+    echo " 2) $(mainmenu_item "${checklist[2]}"  "Select_device"              "${INSTALL_DEVICE}" )"
+    echo " 3) $(mainmenu_item "${checklist[3]}"  "Set UEFI boot type"             "${UEFI_BOOT_TYPE}" )"
+    echo " 4) $(mainmenu_item "${checklist[4]}"  "Select Partion"              "boot:${BOOT_PARTION} root:${ROOT_PARTION}" )"
+    echo " 5) $(mainmenu_item "${checklist[5]}"  "Set SwapfileSize"              "${SWAP_COUNT}M" )"
+    echo " 6) $(mainmenu_item "${checklist[6]}"  "Set Hostname"              "${HOSTNAME}" )"
+    echo " 7) $(mainmenu_item "${checklist[7]}"  "Set Root Password"          "${ROOT_PASSWORD}" )"
+    echo " 8) $(mainmenu_item "${checklist[8]}"  "Set Login User"             "${USER_NAME}/${USER_PASSWORD}" )"
+    
     
     echo ""
     echo " i) install"
@@ -460,14 +552,15 @@ while true; do
     read_input_options
     for OPT in ${OPTIONS[@]}; do
         case ${OPT} in
-            1) set_mirrors && checklist[1]=1;;
-            2) select_device && checklist[2]=1;;
-            3) format_devices && checklist[3]=1;;
-            4) Set_SwapfileSize && checklist[4]=1;;
-            5) set_hostname && checklist[5]=1;;
-            6) set_root_password && checklist[6]=1;;
-            7) set_login_user && checklist[7]=1;;
-            8) set_uefi_boot_type && checklist[8]=1;;
+            1) checklist[1]=1 && set_mirrors;;
+            2) checklist[2]=1 && select_device;;
+            3) checklist[3]=1 && set_uefi_boot_type;;
+            4) checklist[4]=1 && select_partion;;
+            5) checklist[5]=1 && Set_SwapfileSize;;
+            6) checklist[6]=1 && set_hostname;;
+            7) checklist[7]=1 && set_root_password;;
+            8) checklist[8]=1 && set_login_user;;
+            
             "i") install;;
             "q") exit 0;;
             *) invalid_option;;
