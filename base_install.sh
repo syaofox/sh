@@ -251,30 +251,36 @@ function set_uefi_boot_type(){
 function format_devices() {
     # TODO 
     # Support LVM?
-    sgdisk --zap-all ${INSTALL_DEVICE}
-    local boot_partion="${INSTALL_DEVICE}1"
-    local system_partion="${INSTALL_DEVICE}2"
+    confirm_operation "${INSTALL_DEVICE} data will lost, Are you sure?"
+    if [[ ${OPTION} = "y" ]] || [[ ${OPTION} == "" ]];  then
+        
+        sgdisk --zap-all ${INSTALL_DEVICE}
+        local boot_partion="${INSTALL_DEVICE}1"
+        local system_partion="${INSTALL_DEVICE}2"
 
-    if [ ${IS_NVME} == "yes" ]; then
-        boot_partion="${INSTALL_DEVICE}p1"
-        system_partion="${INSTALL_DEVICE}p2"
-    fi
+        if [ ${IS_NVME} == "yes" ]; then
+            boot_partion="${INSTALL_DEVICE}p1"
+            system_partion="${INSTALL_DEVICE}p2"
+        fi
 
-    [[ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ]] && print_error "Boot method isn't be detected!"
-    [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${boot_partion}
-    [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${boot_partion}
+        [[ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ]] && print_error "Boot method isn't be detected!"
+        [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${boot_partion}
+        [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${boot_partion}
 
-    printf "n\n2\n\n\n8300\nw\ny\n"| gdisk ${INSTALL_DEVICE}
-    yes | mkfs.ext4  -L archroot  ${system_partion}
+        printf "n\n2\n\n\n8300\nw\ny\n"| gdisk ${INSTALL_DEVICE}
+        yes | mkfs.ext4  -L archroot  ${system_partion}
 
-    mount ${system_partion} /mnt
-    
-    if [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] ; then
-        if [[ ${UEFI_BOOT_TYPE} = "grub" ]]; then
-            mkdir -p /mnt/boot/efi && mount ${boot_partion} /mnt/boot/efi
-       elif  [[ ${UEFI_BOOT_TYPE} = "systemd" ]]; then
-            mkdir -p /mnt/boot && mount ${boot_partion} /mnt/boot
-       fi
+        mount ${system_partion} /mnt
+        
+        if [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] ; then
+            if [[ ${UEFI_BOOT_TYPE} = "grub" ]]; then
+                mkdir -p /mnt/boot/efi && mount ${boot_partion} /mnt/boot/efi
+        elif  [[ ${UEFI_BOOT_TYPE} = "systemd" ]]; then
+                mkdir -p /mnt/boot && mount ${boot_partion} /mnt/boot
+        fi
+        fi
+    else 
+        checklist[3]=0
     fi
 }
 
@@ -438,7 +444,7 @@ while true; do
     echo " nvmedisk ${IS_NVME}"
     echo ""
     echo " 1) $(mainmenu_item "${checklist[1]}"  "Set Mirrors"             "${MIRRORLIST_COUNTRY}" )"
-    echo " 2) $(mainmenu_item "${checklist[3]}"  "Select Device"              "${INSTALL_DEVICE}" )"
+    echo " 2) $(mainmenu_item "${checklist[2]}"  "Select Device"              "${INSTALL_DEVICE}" )"
     echo " 3) $(mainmenu_item "${checklist[3]}"  "Format Devices"              "${INSTALL_DEVICE}" )"
     echo " 4) $(mainmenu_item "${checklist[4]}"  "Set SwapfileSize"              "${SWAP_COUNT}M" )"
     echo " 5) $(mainmenu_item "${checklist[5]}"  "Set Hostname"              "${HOSTNAME}" )"
