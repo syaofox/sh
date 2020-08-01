@@ -123,7 +123,7 @@ function set_mirrors(){
 function set_intel() {
     local result
     confirm_operation "Do you want to Install Intel Graphics Driver?"
-        if [[ ${OPTION} == "y" ]]; then
+        if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]]; then
            INTEL_GRAPHICS_DRIVER="yes" 
         else
             INTEL_GRAPHICS_DRIVER="no" 
@@ -133,7 +133,7 @@ function set_intel() {
 function set_amd() {
     local result
     confirm_operation "Do you want to Install Amd Graphics Driver?"
-        if [[ ${OPTION} == "y" ]]; then
+        if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]]; then
            AMD_GRAPHICS_DRIVER="yes" 
         else
             AMD_GRAPHICS_DRIVER="no" 
@@ -143,7 +143,7 @@ function set_amd() {
 function set_vmware() {
     local result
     confirm_operation "Do you want to Install vmware Graphics Driver?"
-        if [[ ${OPTION} == "y" ]]; then
+        if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
            VMWARE_GRAPHICS_DRIVER="yes" 
         else
             VMWARE_GRAPHICS_DRIVER="no" 
@@ -151,7 +151,7 @@ function set_vmware() {
 }
 
 function select_desktop_environment(){
-    local desks=("xfce" "kde" "cinnamon" )
+    local desks=("xfce" "kde" "cinnamon" "dde" )
     PS3=${PROMPT_1}
     echo -e "Select Desktop Environment:\n"
     select desk in "${desks[@]}"; do
@@ -218,10 +218,10 @@ function install_smb(){
 
 function install_yay(){
     
-    git clone https://aur.archlinux.org/yay.git
-    cd yay
-    makepkg -si PKGBUILD
-    rm -rf yay
+    #git clone https://aur.archlinux.org/yay.git
+    #cd yay
+    #makepkg -si PKGBUILD
+    #rm -rf yay
 
     echo "Configing Archlinuxcn"
 
@@ -229,13 +229,34 @@ function install_yay(){
     echo "[archlinuxcn]" |sudo tee -a /etc/pacman.conf
     echo "Server = https://mirrors.bfsu.edu.cn/archlinuxcn/\$arch" |sudo tee -a /etc/pacman.conf
 
-    sudo pacman -Syy
+    sudo pacman -Syy --noconfirm
 
     sudo rm -rf /etc/pacman.d/gnupg
     sudo pacman-key --init
     sudo pacman-key --populate archlinux
     sudo pacman -S archlinuxcn-keyring --noconfirm
     sudo pacman-key --populate archlinuxcn
+
+    sudo pacman -S --needed yay --noconfirm
+}
+
+function install_dde(){
+    sudo pacman -S --needed xorg deepin deepin-extra
+    sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session =  lightdm-deepin-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
+   sudo systemctl enable lightdm
+}
+
+function install_kde(){
+    echo "exec startkde" > ~/.xinitrc
+
+    sudo pacman -S --needed --noconfirm plasma-meta sddm sddm-kcm
+    sudo systemctl enable sddm
+
+    sudo pacman -S --needed --noconfirm konsole dolphin ffmpegthumbs kate inkscape ark kinfocenter kwalletmanager gwenview kipi-plugins gimp spectacle  okular vlc speedcrunch kcolorchooser kruler kompare kfind juk kcalc  kdf chromium
+
+    sudo pacman -S --needed --noconfirm discover packagekit-qt5 
+
+    yay -S --needed  kcm-colorful-git breeze-blurred-git
 }
 
 function install_xfce() {
@@ -262,11 +283,6 @@ function install_xfce() {
     echo "Install Themes"
     sudo pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
 
-
-    echo "Install Themes"
-    yay -S --needed mint-themes mint-x-icons mint-y-icons
-    yay -S --needed lightdm-webkit-theme-aether-git
-
     echo "Install lightdm-webkit Themes"
     yay -S lightdm-webkit-theme-aether-git
 
@@ -275,6 +291,10 @@ function install_xfce() {
     #sudo cp --recursive ~/.Aether /usr/share/lightdm-webkit/themes/Aether
     sudo sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = lightdm-webkit-theme-aether #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
     sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
+
+    echo "Install Themes"
+    yay -S --needed mint-themes mint-x-icons mint-y-icons
+    yay -S --needed lightdm-webkit-theme-aether-git
 }
 
 function install_pinyin(){
@@ -296,11 +316,13 @@ function install() {
     install_yay
     
 
-    if [ $DESKTOP_ENVIRONMENT == xfce ];then
+    if [ $DESKTOP_ENVIRONMENT == "xfce" ];then
         install_xfce
         
-    elif [ $DESKTOP_ENVIRONMENT == cinnamon ];then
+    elif [ $DESKTOP_ENVIRONMENT == "cinnamon" ];then
             install_cinnamon
+    elif [ $DESKTOP_ENVIRONMENT == "dde" ];then
+            install_dde
     else
             install_kde
     fi
@@ -309,7 +331,7 @@ function install() {
 
     print_line
     confirm_operation "Do you want to reboot system?"
-    if [[ ${OPTION} == "y" ]]; then
+    if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
         reboot 
     fi
     exit 0
