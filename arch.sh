@@ -13,9 +13,7 @@ echo "Format & Mount"
 
 mkfs.fat -F32 /dev/sda1
 mkfs.ext4 -L archroot /dev/sda2
-
 mount /dev/sda2 /mnt
-
 #system-d bootloader
 mkdir /mnt/boot
 mount /dev/sda1 /mnt/boot
@@ -32,33 +30,27 @@ pacman -Syyy
 
 echo "Installing base"
 # pacstrap -i /mnt base linux linux-headers linux-lts linux-lts-headers linux-firmware intel-ucode sudo nano vim git
-pacstrap -i /mnt base base-devel linux-lts linux-lts-headers linux-firmware intel-ucode sudo vim git 
+pacstrap -i /mnt base base-devel linux-lts linux-lts-headers linux-firmware pacman-contrib intel-ucode sudo vim git 
 
 echo "Genning fstab"
 genfstab -U -p /mnt >> /mnt/etc/fstab
 
-
-
 echo "Setting Swapfile"
-
 dd if=/dev/zero of=/mnt/swapfile bs=1M count=8192 status=progress #8G
 chmod 600 /mnt/swapfile
 mkswap /mnt/swapfile
 swapon /mnt/swapfile
-
 echo >> /mnt/etc/fstab
 echo "# Swapfile" >> /mnt/etc/fstab
 echo "/swapfile none swap defaults 0 0" >> /mnt/etc/fstab
 
 
 echo "Seting Lanuage"
-
 sed -i '/#en_US.UTF-8/s/^#//g' /mnt/etc/locale.gen
 sed -i '/#zh_CN.UTF-8/s/^#//g' /mnt/etc/locale.gen
 sed -i '/#zh_HK.UTF-8/s/^#//g' /mnt/etc/locale.gen
 sed -i '/#zh_TW.UTF-8/s/^#//g' /mnt/etc/locale.gen
 arch_chroot "locale-gen"
-
 echo "LANG=en_US.UTF-8" > /mnt/etc/locale.conf
 
 echo "Setting Timezone"
@@ -73,9 +65,8 @@ echo "::1 localhost" >> /mnt/etc/hosts
 echo "127.0.1.1 vm-arch.localdomain	vm-arch" >> /mnt/etc/hosts
 
 echo "Setting Network"
-arch_chroot "pacman -S networkmanager"
+arch_chroot "pacman -S networkmanager network-manager-applet"
 arch_chroot "systemctl enable NetworkManager"
-
 arch_chroot "systemctl disable dhcpcd"
 
 echo "Add Root Password"

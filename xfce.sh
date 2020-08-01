@@ -8,7 +8,7 @@ sudo pacman -S reflector
 sudo reflector --verbose -c CN --sort rate  -a 6 -p https --save /etc/pacman.d/mirrorlist
 # Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
 sudo pacman -Syyy
-sudo pacman -S --needed mtools dosfstools xdg-utils xdg-user-dirs reflector --noconfirm
+sudo pacman -S --needed mtools dosfstools xdg-utils xdg-user-dirs reflector archlinux-keyring nfs-utils --noconfirm
 sudo pacman -S --needed xorg xorg-xinit xorg-server --noconfirm
 sudo pacman -S --needed gstreamer gst-libav gst-plugins-base gst-plugins-good gstreamer-vaapi  gst-plugins-good --noconfirm
 sudo pacman -S --needed noto-fonts-cjk ttf-dejavu wqy-microhei wqy-microhei-lite wqy-zenhei --noconfirm
@@ -36,6 +36,7 @@ sudo chown -R syaofox  /media/smb
 
 sudo mkdir -p /media/smb/omvnas/me
 sudo mkdir -p /media/smb/omvnas/kid
+sudo mkdir -p /media/smb/omvnas/share
 sudo mkdir -p /media/smb/openwrt/share
 
 echo '10.10.10.1	openwrt' |sudo tee -a /etc/hosts
@@ -44,14 +45,14 @@ echo '10.10.10.3	omvnas' |sudo tee -a /etc/hosts
 echo '//omvnas/share /media/smb/omvnas/share cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee -a /etc/fstab
 echo '//omvnas/me /media/smb/omvnas/me cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee -a /etc/fstab
 echo '//omvnas/kid /media/smb/omvnas/kid cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee -a /etc/fstab
-echo '//openwrt/share /media/smb/openwrt/share cifs  username=me,password=0928,vers=2.0,noauto,user 0 0' |sudo tee -a /etc/fstab
+echo '//openwrt/share /media/smb/openwrt/share cifs  username=root,password=0928,vers=2.0,noauto,user 0 0' |sudo tee -a /etc/fstab
 
 echo "Install pkgs"
 sudo pacman -S --needed pavucontrol libcanberra libcanberra-pulse --noconfirm
 
 sudo pacman -S --needed file-roller p7zip unrar unace lrzip squashfs-tools --noconfirm
 
-sudo pacman -S --needed ffmpegthumbnailer ffmpegthumbs --noconfirm
+sudo pacman -S --needed ffmpegthumbnailer ffmpegthumbs thunar-media-tags-plugin --noconfirm
 
 echo "Install Themes"
 sudo pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
