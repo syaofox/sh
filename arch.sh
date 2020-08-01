@@ -6,10 +6,15 @@ function arch_chroot() {
     arch-chroot /mnt "/bin/bash" -c "${1}"
 }
 
+INSTALL_DEVICE=
+
+pacman -Syyy
 echo "Server = https://mirrors.bfsu.edu.cn/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 pacman -Syyy
 
 echo "Format & Mount"
+
+#read -p "Input :" MIRRORLIST_COUNTRY
 
 mkfs.fat -F32 /dev/sda1
 mkfs.ext4 -L archroot /dev/sda2

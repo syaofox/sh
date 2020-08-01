@@ -2,6 +2,18 @@
 
 set -e
 
+function pinyin(){
+    sudo pacman -S fcitx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
+    echo "export GTK_IM_MODULE=fcitx5" >> ~/.xprofile
+    echo "export XMODIFIERS=@im=fcitx5" >> ~/.xprofile
+    echo "export QT_IM_MODULE=fcitx5" >> ~/.xprofile
+    echo "fcitx5 &" >> ~/.xprofile
+
+    echo "export GTK_IM_MODULE=fcitx5" >> ~/.xinitrc
+    echo "export XMODIFIERS=@im=fcitx5" >> ~/.xinitrc
+    echo "export QT_IM_MODULE=fcitx5" >> ~/.xinitrc
+}
+
 function systemd_resolved(){
     sudo systemctl start systemd-resolved.service
     sudo systemctl enable systemd-resolved.service
@@ -25,41 +37,6 @@ function install_smb(){
     echo '//omvnas/me /media/smb/omvnas/me cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee -a /etc/fstab
     echo '//omvnas/kid /media/smb/omvnas/kid cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee -a /etc/fstab
     echo '//openwrt/share /media/smb/openwrt/share cifs  username=root,password=0928,vers=2.0,noauto,user 0 0' |sudo tee -a /etc/fstab
-}
-
-function install_xfce() {
-    echo "Install Desktop"
-    sudo pacman -S --needed lightdm lightdm-webkit2-greeter xfce4 xfce4-goodies --noconfirm
-
-    sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
-    sudo systemctl enable lightdm
-
-    echo "Install pkgs"
-    sudo pacman -S --needed xcape cifs-utils --noconfirm
-
-    echo "Install pkgs"
-    sudo pacman -S --needed pavucontrol libcanberra libcanberra-pulse --noconfirm
-
-    sudo pacman -S --needed file-roller p7zip unrar unace lrzip squashfs-tools --noconfirm
-
-    sudo pacman -S --needed ffmpegthumbnailer ffmpegthumbs thunar-media-tags-plugin --noconfirm
-
-    echo "Install Themes"
-    sudo pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
-
-
-    echo "Install Themes"
-    yay -S --needed mint-themes mint-x-icons mint-y-icons
-    yay -S --needed lightdm-webkit-theme-aether-git
-
-    echo "Install lightdm-webkit Themes"
-    yay -S lightdm-webkit-theme-aether-git
-
-    sudo cp -r /usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether /usr/share/lightdm-webkit/themes/Aether
-    #git clone git@github.com:NoiSek/Aether.git ~/.Aether
-    #sudo cp --recursive ~/.Aether /usr/share/lightdm-webkit/themes/Aether
-    sudo sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = lightdm-webkit-theme-aether #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
-    sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
 }
 
 function install_yay(){
@@ -107,6 +84,49 @@ function install_pkg(){
     sudo systemctl enable fstrim.timer
 }
 
+function install_xfce() {
+    echo "Install Desktop"
+    sudo pacman -S --needed lightdm lightdm-webkit2-greeter xfce4 xfce4-goodies --noconfirm
+
+    echo "exec startxfce4" > ~/.xinitrc
+
+    sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
+    sudo systemctl enable lightdm
+
+ 
+
+    echo "Install pkgs"
+    sudo pacman -S --needed xcape cifs-utils --noconfirm
+
+    echo "Install pkgs"
+    sudo pacman -S --needed pavucontrol libcanberra libcanberra-pulse --noconfirm
+
+    sudo pacman -S --needed file-roller p7zip unrar unace lrzip squashfs-tools --noconfirm
+
+    sudo pacman -S --needed ffmpegthumbnailer ffmpegthumbs thunar-media-tags-plugin --noconfirm
+
+    echo "Install Themes"
+    sudo pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
+
+
+    echo "Install Themes"
+    yay -S --needed mint-themes mint-x-icons mint-y-icons
+    yay -S --needed lightdm-webkit-theme-aether-git
+
+    echo "Install lightdm-webkit Themes"
+    yay -S lightdm-webkit-theme-aether-git
+
+    sudo cp -r /usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether /usr/share/lightdm-webkit/themes/Aether
+    #git clone git@github.com:NoiSek/Aether.git ~/.Aether
+    #sudo cp --recursive ~/.Aether /usr/share/lightdm-webkit/themes/Aether
+    sudo sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = lightdm-webkit-theme-aether #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
+    sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
+}
+
+function install_kde(){
+
+}
+
 echo "Setting Mirrors"
 set_mirrors
 
@@ -136,4 +156,5 @@ elif [ $var == cinnamon ];then
         echo "cinnamon"
 else
         echo "kde"
+        install_kde
 fi
