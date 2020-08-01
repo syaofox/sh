@@ -248,9 +248,14 @@ function install_cinnamon(){
     sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
     sudo systemctl enable lightdm
 
+    sudo pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
+
     yay -S --needed mintlocale lightdm-webkit-theme-aether font-manager nemo-media-columns libgexiv2 nemo-mediainfo-tab nemo-fileroller ffmpeg ffmpegthumbnailer ffmpegthumbs nemo-preview 
 
-    yay -S --needed exa xed xviewer xviewer-plugins xreader xplayer gst-libav python2-xdg
+    yay -S --needed xed xviewer xviewer-plugins xreader celluloid python2-xdg
+
+     yay -S --needed mint-themes mint-x-icons mint-y-icons
+
 }
 
 function install_dde(){
@@ -265,7 +270,7 @@ function install_kde(){
     sudo pacman -S --needed --noconfirm plasma-meta sddm sddm-kcm
     sudo systemctl enable sddm
 
-    sudo pacman -S --needed --noconfirm konsole dolphin ffmpegthumbs kate inkscape ark kinfocenter kwalletmanager gwenview kipi-plugins gimp spectacle  okular vlc speedcrunch kcolorchooser kruler kompare kfind juk kcalc  kdf chromium
+    sudo pacman -S --needed --noconfirm konsole dolphin ffmpegthumbs kate inkscape ark kinfocenter kwalletmanager gwenview kipi-plugins gimp spectacle  okular vlc speedcrunch kcolorchooser kruler kompare kfind juk kcalc  kdf 
 
     sudo pacman -S --needed --noconfirm discover packagekit-qt5 
 
@@ -297,20 +302,19 @@ function install_xfce() {
     sudo pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
 
     echo "Install lightdm-webkit Themes"
-    yay -S lightdm-webkit-theme-aether-git
+    yay -S lightdm-webkit-theme-aether
 
-    sudo cp -r /usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether /usr/share/lightdm-webkit/themes/Aether
-    #git clone git@github.com:NoiSek/Aether.git ~/.Aether
-    #sudo cp --recursive ~/.Aether /usr/share/lightdm-webkit/themes/Aether
-    sudo sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = lightdm-webkit-theme-aether #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
-    sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
+    #sudo cp -r /usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether /usr/share/lightdm-webkit/themes/Aether
+
+    #sudo sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = lightdm-webkit-theme-aether #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
+    #sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
 
     echo "Install Themes"
     yay -S --needed mint-themes mint-x-icons mint-y-icons
     yay -S --needed lightdm-webkit-theme-aether-git
 }
 
-function install_pinyin(){
+function install_applications(){
     sudo pacman -S fcitx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
     echo "export GTK_IM_MODULE=fcitx5" >> ~/.xprofile
     echo "export XMODIFIERS=@im=fcitx5" >> ~/.xprofile
@@ -320,6 +324,13 @@ function install_pinyin(){
     echo "export GTK_IM_MODULE=fcitx5" >> ~/.xinitrc
     echo "export XMODIFIERS=@im=fcitx5" >> ~/.xinitrc
     echo "export QT_IM_MODULE=fcitx5" >> ~/.xinitrc
+
+    sudo pacman -S --needed --noconfirm chromium exa perl-rename  neofetch
+
+    curl -L   https://linux.dropbox.com/fedora/rpm-public-key.asc rpm-public-key.asc 
+    gpg --import rpm-public-key.asc
+    yay -S --needed dropbox
+
 }
 
 function install() {
@@ -340,7 +351,7 @@ function install() {
             install_kde
     fi
 
-    install_pinyin
+    install_applications
 
     print_line
     confirm_operation "Do you want to reboot system?"
