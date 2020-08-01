@@ -20,6 +20,12 @@ function print_line() {
     printf "%$(tput cols)s\n" | tr ' ' '-'
 }
 
+function print_tip(){
+    print_line
+    echo "$1" 
+    print_line
+}
+
 function print_error() { 
     T_COLS=`tput cols`
     echo -e "\n\n${BRed}$1${Reset}\n" | fold -sw $(( $T_COLS - 1 ))
@@ -151,7 +157,7 @@ function set_vmware() {
 }
 
 function select_desktop_environment(){
-    local desks=("xfce" "kde" "cinnamon" "dde" )
+    local desks=("xfce" "kde" "cinnamon" "dde" "gnome" )
     PS3=${PROMPT_1}
     echo -e "Select Desktop Environment:\n"
     select desk in "${desks[@]}"; do
@@ -207,8 +213,8 @@ function install_smb(){
     sudo mkdir -p /media/smb/omvnas/share
     sudo mkdir -p /media/smb/openwrt/share
 
-    #echo '10.10.10.1	openwrt' |sudo tee -a /etc/hosts
-    #echo '10.10.10.3	omvnas' |sudo tee -a /etc/hosts
+    echo '10.10.10.1	openwrt' |sudo tee -a /etc/hosts
+    echo '10.10.10.3	omvnas' |sudo tee -a /etc/hosts
 
     echo '//omvnas/share /media/smb/omvnas/share cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee -a /etc/fstab
     echo '//omvnas/me /media/smb/omvnas/me cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee -a /etc/fstab
@@ -258,10 +264,20 @@ function install_cinnamon(){
 
 }
 
+function install_gnome(){
+    echo "gnome-session" > ~/.xinitrc
+    sudo pacman -S --needed --noconfirm gdm gnome gnome-extra gnome-tweaks gnome-terminal
+    sudo systemctl enable gdm
+
+    yay -S gnome-shell-extension-appindicator
+}
+
+
 function install_dde(){
-    sudo pacman -S --needed deepin deepin-extra
+    echo "exec startdde" > ~/.xinitrc
+    sudo pacman -S --needed --noconfirm deepin deepin-extra
     sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session =  lightdm-deepin-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
-   sudo systemctl enable lightdm
+    sudo systemctl enable lightdm
 }
 
 function install_kde(){
@@ -333,27 +349,53 @@ function install_applications(){
 
 }
 
+function install_confiure(){   
+    print_tip "Change swappiness >> 10" 
+    echo "vm.swappiness=10" |sudo tee -a /etc/sysctl.d/99-swappiness.conf
+
+    print_tip "Remove orphans"
+    sudo pacman -Rns $(pacman -Qtdq) --noconfirm
+}
+
 function install() {
+    print_tip "Install Pakages"
     install_pkg
-    systemd_resolved
+
+    #print_tip "Systemd Resolved"
+    #systemd_resolved
+
+    print_tip "Mount Samba"
     install_smb
+
+    print_tip "Configrue yay & ArchLinuxCN"
     install_yay
     
 
     if [ $DESKTOP_ENVIRONMENT == "xfce" ];then
+        print_tip "Install xfce"
         install_xfce
         
     elif [ $DESKTOP_ENVIRONMENT == "cinnamon" ];then
-            install_cinnamon
+        print_tip "Install cinnamon"
+        install_cinnamon
     elif [ $DESKTOP_ENVIRONMENT == "dde" ];then
-            install_dde
+        print_tip "Install dde"
+        install_dde
+    elif [ $DESKTOP_ENVIRONMENT == "gnome" ];then
+        print_tip "Install gnome"
+        install_gnome
     else
-            install_kde
+        print_tip "Install kde"
+        install_kde
     fi
 
+    print_tip "Install Applications"
     install_applications
 
-    print_line
+    print_tip "Confiure system"
+    install_confiure
+
+    print_tip "Install complete!!"
     confirm_operation "Do you want to reboot system?"
     if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
         reboot 
