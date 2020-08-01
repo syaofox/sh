@@ -13,6 +13,7 @@
     PROMPT_1="Enter your option: "
 #}}}
 
+UEFI_BOOT_TYPE="systemd"
 UEFI_BIOS_TEXT="Boot Not Detected"
 INSTALL_DEVICE=
 MIRRORLIST_COUNTRY="CN"
@@ -139,15 +140,15 @@ function arch_chroot() {
 
 function set_mirrors(){
     echo "Server = https://mirrors.bfsu.edu.cn/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
-     sudo pacman -Syyy --noconfirm
-    sudo pacman -S  --needed reflector --noconfirm
+    pacman -Syyy --noconfirm
+    pacman -S  --needed reflector --noconfirm
     #MIRRORLIST_COUNTRY=CN
    #read -p "Input your country:" MIRRORLIST_COUNTRY
 
     
-    sudo reflector --verbose -c ${MIRRORLIST_COUNTRY} --sort rate  -a 6 -p https --save /etc/pacman.d/mirrorlist
+    reflector --verbose -c ${MIRRORLIST_COUNTRY} --sort rate  -a 6 -p https --save /etc/pacman.d/mirrorlist
     # Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
-    sudo pacman -Syyy --noconfirm
+    pacman -Syyy --noconfirm
 }
 
 function select_device() {
@@ -214,6 +215,28 @@ function set_hostname() {
     fi
 }
 
+function set_uefi_boot_type(){
+    #local result
+    #read -p "Input efi boot type[ex: ${UEFI_BOOT_TYPE}}]: " result
+    #if [[ ! -z ${result} ]]; then 
+    #    UEFI_BOOT_TYPE=${result}
+    #fi
+
+   local boot_types=("systemd" "grub" )
+    PS3=${PROMPT_1}
+    echo -e "Select efi boot type:\n"
+    select bootrype in "${boot_types[@]}"; do
+        if contains_element ${bootrype} ${boot_types[@]}; then 
+            UEFI_BOOT_TYPE=$bootrype
+            break
+        else
+            invalid_option
+        fi
+      
+    done
+
+}
+
 function format_devices() {
     # TODO 
     # Support LVM?
@@ -229,7 +252,14 @@ function format_devices() {
     yes | mkfs.ext4  -L archroot  ${system_partion}
 
     mount ${system_partion} /mnt
-    [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && mkdir -p /mnt/boot && mount ${boot_partion} /mnt/boot
+    
+    if [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] ; then
+        if [[ ${UEFI_BOOT_TYPE} = "grub" ]]; then
+            mkdir -p /mnt/boot/efi && mount ${boot_partion} /mnt/boot/efi
+       elif  [[ ${UEFI_BOOT_TYPE} = "systemd" ]]; then
+            mkdir -p /mnt/boot && mount ${boot_partion} /mnt/boot
+       fi
+    fi
 }
 
 function make_swap() {   
@@ -269,7 +299,7 @@ function configure_hostname() {
 
     arch_chroot "echo '127.0.0.1  localhost' >> /etc/hosts"
     arch_chroot "echo '::1        localhost' >> /etc/hosts"
-    arch_chroot "echo '127.0.1.1         localhost ${HOSTNAME}.localdomain ${HOSTNAME}' >> /etc/hosts"
+    arch_chroot "echo '127.0.1.1    ${HOSTNAME}.localdomain ${HOSTNAME}' >> /etc/hosts"
 }
 
 function configure_network(){
@@ -286,6 +316,15 @@ function configure_user() {
 }
 
 function bootloader_uefi() {
+     if [[ ${UEFI_BOOT_TYPE} = "grub" ]]; then
+            bootloader_uefi_grub
+       elif  [[ ${UEFI_BOOT_TYPE} = "systemd" ]]; then
+            bootloader_uefi_systemd
+       fi
+}
+
+function bootloader_uefi_grub() {
+
     arch_chroot "pacman -S efibootmgr grub --noconfirm"
     arch_chroot "grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi"
     arch_chroot "mkdir -p /boot/efi/EFI/BOOT"
@@ -327,7 +366,7 @@ function system_install() {
     timedatectl set-ntp true
 
     # Install system-base
-    yes '' | pacstrap -i /mnt base base-devel linux-lts linux-lts-headers linux-firmware pacman-contrib intel-ucode sudo vim git dnsutils
+    yes '' | pacstrap -i /mnt base base-devel linux-lts linux-lts-headers linux-firmware pacman-contrib intel-ucode sudo vim git dnsutils openssh
     yes '' | genfstab -U /mnt >> /mnt/etc/fstab
 
     # swap file
@@ -359,6 +398,12 @@ function install() {
     fi
 }
 
+if (( $EUID != 0 )); then
+    print_line
+    echo "Please run as root"
+    exit
+fi
+
 uefi_bios_detect
 #pause
 checklist=( 0 0 0 0 0 0 0 )
@@ -367,12 +412,14 @@ while true; do
     print_title "ARCHLINUX ULTIMATE INSTALL "
     echo " ${UEFI_BIOS_TEXT}"
     echo ""
-    echo " 1) $(mainmenu_item "${checklist[1]}"  "Select Mirrors"             "${MIRRORLIST_COUNTRY}" )"
+    echo " 1) $(mainmenu_item "${checklist[1]}"  "Set Mirrors"             "${MIRRORLIST_COUNTRY}" )"
     echo " 2) $(mainmenu_item "${checklist[2]}"  "Select Device"              "${INSTALL_DEVICE}" )"
     echo " 3) $(mainmenu_item "${checklist[3]}"  "Set SwapfileSize"              "${SWAP_COUNT}M" )"
     echo " 4) $(mainmenu_item "${checklist[4]}"  "Set Hostname"              "${HOSTNAME}" )"
     echo " 5) $(mainmenu_item "${checklist[5]}"  "Set Root Password"          "${ROOT_PASSWORD}" )"
     echo " 6) $(mainmenu_item "${checklist[6]}"  "Set Login User"             "${USER_NAME}/${USER_PASSWORD}" )"
+    echo " 7) $(mainmenu_item "${checklist[7]}"  "Set UEFI boot type"             "${UEFI_BOOT_TYPE}" )"
+    
     echo ""
     echo " i) install"
     echo " q) quit"
@@ -387,6 +434,7 @@ while true; do
             4) set_hostname && checklist[4]=1;;
             5) set_root_password && checklist[5]=1;;
             6) set_login_user && checklist[6]=1;;
+            7) set_uefi_boot_type && checklist[7]=1;;
             "i") install;;
             "q") exit 0;;
             *) invalid_option;;

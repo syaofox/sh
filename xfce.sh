@@ -2,6 +2,12 @@
 
 set -e
 
+if (( $EUID != 0 )); then
+    print_line
+    echo "Please run as root"
+    exit
+fi
+
 function pinyin(){
     sudo pacman -S fcitx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
     echo "export GTK_IM_MODULE=fcitx5" >> ~/.xprofile
@@ -124,7 +130,7 @@ function install_xfce() {
 }
 
 function install_kde(){
-
+    break
 }
 
 echo "Setting Mirrors"
