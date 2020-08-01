@@ -327,7 +327,7 @@ function install_applications(){
 
     sudo pacman -S --needed --noconfirm chromium exa perl-rename  neofetch
 
-    curl -L   https://linux.dropbox.com/fedora/rpm-public-key.asc rpm-public-key.asc 
+    curl -L   https://linux.dropbox.com/fedora/rpm-public-key.asc > rpm-public-key.asc 
     gpg --import rpm-public-key.asc
     yay -S --needed dropbox
 
