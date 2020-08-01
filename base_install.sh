@@ -173,7 +173,7 @@ function select_device() {
         fi
     done
 
-    if [[ ${OPTION} == "y" ]]; then
+    if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
         INSTALL_DEVICE=${device}
         return 0
     fi
@@ -255,7 +255,7 @@ function format_devices() {
     local boot_partion="${INSTALL_DEVICE}1"
     local system_partion="${INSTALL_DEVICE}2"
 
-    if [ ${IS_NVME}=="yes" ]; then
+    if [ ${IS_NVME} == "yes" ]; then
         boot_partion="${INSTALL_DEVICE}p1"
         system_partion="${INSTALL_DEVICE}p2"
     fi
@@ -407,12 +407,12 @@ function install() {
 
 
     confirm_operation "Operation is irreversible, Are you sure?"
-    if [[ ${OPTION} = "y" ]]; then
+    if [[ ${OPTION} = "y" ]] || [[ ${OPTION} == "" ]];  then
         system_install
 
         print_line
         confirm_operation "Do you want to reboot system?"
-        if [[ ${OPTION} == "y" ]]; then
+        if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
            reboot 
         fi
         exit 0

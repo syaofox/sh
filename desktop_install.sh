@@ -240,8 +240,21 @@ function install_yay(){
     sudo pacman -S --needed yay --noconfirm
 }
 
+function install_cinnamon(){
+    
+    sudo pacman -S --needed lightdm lightdm-webkit2-greeter cinnamon metacity  gnome-keyring xdg-utils xdg-user-dirs cinnamon-control-center cinnamon-desktop cinnamon-menus cinnamon-screensaver cinnamon-session cinnamon-settings-daemon cjs muffin cinnamon-translations qt5-translations man-pages-zh_cn poppler-data hyphen-en hunspell-en_US gstreamer gnome-system-monitor blueberry gnome-calculator xfce4-terminal --noconfirm
+    echo "exec cinnamon-session" > ~/.xinitrc
+
+    sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
+    sudo systemctl enable lightdm
+
+    yay -S --needed mintlocale lightdm-webkit-theme-aether font-manager nemo-media-columns libgexiv2 nemo-mediainfo-tab nemo-fileroller ffmpeg ffmpegthumbnailer ffmpegthumbs nemo-preview 
+
+    yay -S --needed exa xed xviewer xviewer-plugins xreader xplayer gst-libav python2-xdg
+}
+
 function install_dde(){
-    sudo pacman -S --needed xorg deepin deepin-extra
+    sudo pacman -S --needed deepin deepin-extra
     sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session =  lightdm-deepin-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
    sudo systemctl enable lightdm
 }
