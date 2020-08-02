@@ -279,7 +279,9 @@ function install_gnome(){
     sudo pacman -S --needed --noconfirm gdm gnome gnome-extra gnome-tweaks gnome-terminal
     sudo systemctl enable gdm
 
-    yay -S gnome-shell-extension-appindicator
+    # yay -S gnome-shell-extension-appindicator
+    yay -S gnome-shell-extension-topicons-plus
+
 }
 
 
@@ -299,6 +301,8 @@ function install_kde(){
     sudo pacman -S --needed --noconfirm konsole dolphin ffmpegthumbs kate inkscape ark kinfocenter kwalletmanager gwenview kipi-plugins gimp spectacle  okular vlc speedcrunch kcolorchooser kruler kompare kfind juk kcalc  kdf 
 
     sudo pacman -S --needed --noconfirm discover packagekit-qt5 
+
+    yay -S kget kget-integrator kget-integrator-chromium 
 
     yay -S --needed  kcm-colorful-git breeze-blurred-git
 }
@@ -341,7 +345,13 @@ function install_xfce() {
 }
 
 function install_applications(){
-    sudo pacman -S fcitx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
+    if [ $DESKTOP_ENVIRONMENT == "gnome" ];then        
+        sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk fcitx5-material-color
+        yay -S fcitx5-config-qt-git
+    else
+        sudo pacman -S fcitx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
+    fi
+    # sudo pacman -S fcitx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
     echo "export GTK_IM_MODULE=fcitx5" >> ~/.xprofile
     echo "export XMODIFIERS=@im=fcitx5" >> ~/.xprofile
     echo "export QT_IM_MODULE=fcitx5" >> ~/.xprofile
