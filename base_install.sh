@@ -281,10 +281,16 @@ function set_password() {
 
 function set_root_password() {
     set_password root ROOT_PASSWORD
-    if [[ ! ${ROOT_PASSWORD} ]]; then
+    if [[ ${ROOT_PASSWORD} == "" ]]; then
+        return 0
+    else
         return 1
     fi
-    return 0
+
+    # if [[ ! ${ROOT_PASSWORD} ]]; then
+    #     return 1
+    # fi
+    # return 1
 }
 
 function set_login_user() {
