@@ -194,7 +194,11 @@ function select_partion() {
     # if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]]; then
     #     ROOT_PARTION=${rpartion}
     # fi
-    confirm_operation "Data on ${bpartion}  ${rpartion} will be damaged,continute?"
+    local format_tip="Data on ${bpartion}  ${rpartion} will be damaged,continute?"
+    if [[ ${OTHER_OS} == "yes" ]]; then
+        format_tip="Data on ${rpartion} will be damaged,continute?"
+    fi
+    confirm_operation "${format_tip}"
     if [[ ${OPTION} != "y" ]] && [[ ${OPTION} != "" ]]; then
         echo "nothing changed"
         pause
@@ -222,8 +226,7 @@ function select_partion() {
         fi
 
     fi
-    lsblk
-    pause
+    lsblk    
     return 1
 }
 
@@ -258,7 +261,7 @@ function select_device() {
 
     #     return 0
     # fi
-    pause
+    
     return 1
 }
 
@@ -582,7 +585,7 @@ while true; do
             2) 
                 select_device
                 checklist[2]=$?
-                pause
+                #pause
                 ;;
             3)
                 set_uefi_boot_type
