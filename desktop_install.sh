@@ -173,7 +173,7 @@ function select_desktop_environment(){
 
 function install_pkg(){
     sudo pacman -S --needed mtools dosfstools xdg-utils xdg-user-dirs reflector archlinux-keyring nfs-utils --noconfirm
-    sudo pacman -S --needed xorg xorg-xinit xorg-server --noconfirm
+    sudo pacman -S --needed xorg xorg-xinit xorg-server xf86-input-libinput --noconfirm
     sudo pacman -S --needed gstreamer gst-libav gst-plugins-base gst-plugins-good gstreamer-vaapi  gst-plugins-good --noconfirm
     sudo pacman -S --needed noto-fonts-cjk ttf-dejavu wqy-microhei wqy-microhei-lite wqy-zenhei --noconfirm
     sudo pacman -S --needed pulseaudio pulseaudio-alsa --noconfirm
