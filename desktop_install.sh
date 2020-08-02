@@ -337,7 +337,7 @@ function install_xfce() {
 
     echo "Install Themes"
     yay -S --needed mint-themes mint-x-icons mint-y-icons
-    yay -S --needed lightdm-webkit-theme-aether-git
+    #yay -S --needed lightdm-webkit-theme-aether-git
 }
 
 function install_applications(){
