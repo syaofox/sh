@@ -124,16 +124,20 @@ function set_mirrors(){
     sudo reflector --verbose -c ${MIRRORLIST_COUNTRY} --sort rate  -a 6 -p https --save /etc/pacman.d/mirrorlist
     # Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
     sudo pacman -Syyy --noconfirm
+
+    return 1
 }
 
 function set_intel() {
     local result
     confirm_operation "Do you want to Install Intel Graphics Driver?"
-        if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]]; then
-           INTEL_GRAPHICS_DRIVER="yes" 
-        else
-            INTEL_GRAPHICS_DRIVER="no" 
-        fi
+    if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]]; then
+        INTEL_GRAPHICS_DRIVER="yes" 
+    else
+        INTEL_GRAPHICS_DRIVER="no" 
+    fi
+
+    return 1
 }
 
 function set_amd() {
@@ -144,6 +148,8 @@ function set_amd() {
         else
             AMD_GRAPHICS_DRIVER="no" 
         fi
+
+    return 1
 }
 
 function set_vmware() {
@@ -154,6 +160,8 @@ function set_vmware() {
         else
             VMWARE_GRAPHICS_DRIVER="no" 
         fi
+    
+    return 1
 }
 
 function select_desktop_environment(){
@@ -169,6 +177,8 @@ function select_desktop_environment(){
         fi
       
     done
+
+    return 1
 }
 
 function install_pkg(){
@@ -434,11 +444,27 @@ while true; do
     read_input_options
     for OPT in ${OPTIONS[@]}; do
         case ${OPT} in
-            1) set_mirrors && checklist[1]=1;;
-            2) set_intel && checklist[2]=1;;
-            3) set_amd && checklist[3]=1;;
-            4) set_vmware && checklist[4]=1;;
-            5) select_desktop_environment && checklist[5]=1;;
+            1) 
+                set_mirrors
+                checklist[1]=$?
+                pause
+                ;;
+            2)
+                set_intel
+                checklist[2]=$?
+                ;;
+            3)
+                set_amd
+                checklist[3]=$?
+                ;;
+            4)
+                set_vmware
+                checklist[4]=$?
+                ;;
+            5)
+                select_desktop_environment
+                checklist[5]=$?
+                ;;
             "i") install;;
             "q") exit 0;;
             *) invalid_option;;

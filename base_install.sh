@@ -239,7 +239,10 @@ function select_device() {
     echo -e "Select device to install Arch Linux:\n"
     select device in "${devices_list[@]}"; do
         if contains_element ${device} ${devices_list[@]}; then 
-            #confirm_operation "Data on ${device} will be damaged"
+            confirm_operation "Do you wish to init ${device}(delele partition table)? Data on ${device} will be damaged"
+            if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
+                dd if=/dev/zero of=${device} bs=512 count=1 conv=notrunc
+            fi
             INSTALL_DEVICE=${device}
             cfdisk ${INSTALL_DEVICE}
             break
@@ -565,7 +568,7 @@ while true; do
     echo " nvmedisk ${IS_NVME}"
     echo ""
     echo " 1) $(mainmenu_item "${checklist[1]}"  "Set Mirrors"             "${MIRRORLIST_COUNTRY}" )"
-    echo " 2) $(mainmenu_item "${checklist[2]}"  "Select_device"              "${INSTALL_DEVICE}" )"
+    echo " 2) $(mainmenu_item "${checklist[2]}"  "Select_device & Partition Disk"              "${INSTALL_DEVICE}" )"
     echo " 3) $(mainmenu_item "${checklist[3]}"  "Set UEFI boot type"             "${UEFI_BOOT_TYPE}" )"
     echo " 4) $(mainmenu_item "${checklist[4]}"  "Has Other OperationSystem"             "${OTHER_OS}" )"
     echo " 5) $(mainmenu_item "${checklist[5]}"  "Select Partion"              "boot:${BOOT_PARTION} root:${ROOT_PARTION}" )"
