@@ -213,7 +213,8 @@ function select_partion() {
         [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${BOOT_PARTION}
 
         printf "n\n2\n\n\n8300\nw\ny\n"| gdisk ${INSTALL_DEVICE}
-        yes | mkfs.ext4  -L archroot  ${ROOT_PARTION}
+        yes | mkfs.ext4  ${ROOT_PARTION}
+        # yes | mkfs.ext4  -L archroot  ${ROOT_PARTION}
 
         mount ${ROOT_PARTION} /mnt
         
@@ -493,7 +494,8 @@ function bootloader_uefi_systemd(){
     echo "linux /vmlinuz-linux-lts" >> /mnt/boot/loader/entries/arch.conf
     echo "initrd /intel-ucode.img" >> /mnt/boot/loader/entries/arch.conf
     echo "initrd /initramfs-linux-lts.img" >> /mnt/boot/loader/entries/arch.conf
-    partuuid=$(blkid | grep archroot | sed -r 's/.*?PARTUUID=\"(.*?)\"/\1/g')
+    partuuid=$(blkid | grep ${ROOT_PARTION} | sed -r 's/.*?PARTUUID=\"(.*?)\"/\1/g')
+    #partuuid=$(blkid | grep archroot | sed -r 's/.*?PARTUUID=\"(.*?)\"/\1/g')
     echo "options root=\"PARTUUID=${partuuid}\" rw" >> /mnt/boot/loader/entries/arch.conf
 }
 
