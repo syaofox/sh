@@ -14,6 +14,7 @@
 #}}}
 
 UEFI_BOOT_TYPE="systemd"
+OTHER_OS="no"
 UEFI_BIOS_TEXT="Boot Not Detected"
 INSTALL_DEVICE=
 MIRRORLIST_COUNTRY="CN"
@@ -154,13 +155,10 @@ function set_mirrors(){
     echo "Server = https://mirrors.bfsu.edu.cn/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
     pacman -Syyy --noconfirm
     pacman -S  --needed reflector --noconfirm
-    #MIRRORLIST_COUNTRY=CN
-   #read -p "Input your country:" MIRRORLIST_COUNTRY
-
-    
-    reflector --verbose -c ${MIRRORLIST_COUNTRY} --sort rate  -a 6 -p https --save /etc/pacman.d/mirrorlist
-    # Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch
+    reflector --verbose -c ${MIRRORLIST_COUNTRY} --sort rate  -a 15 -p https --save /etc/pacman.d/mirrorlist
     pacman -Syyy --noconfirm
+
+    return 1
 }
 
 function select_partion() {
@@ -200,12 +198,14 @@ function select_partion() {
     if [[ ${OPTION} != "y" ]] && [[ ${OPTION} != "" ]]; then
         echo "nothing changed"
         pause
-        return
+        return 0
     fi
   
     if [[ ${BOOT_PARTION} != "" ]] && [[ ${ROOT_PARTION} != "" ]]; then
         [[ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ]] && print_error "Boot method isn't be detected!"
-        [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${BOOT_PARTION}
+        if [[ ${OTHER_OS} == "no" ]]; then
+            [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${BOOT_PARTION}
+        fi
         [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${BOOT_PARTION}
 
         printf "n\n2\n\n\n8300\nw\ny\n"| gdisk ${INSTALL_DEVICE}
@@ -241,7 +241,9 @@ function select_device() {
             cfdisk ${INSTALL_DEVICE}
             break
         else
+            
             invalid_option
+            return 0
         fi
     done
 
@@ -279,6 +281,7 @@ function set_root_password() {
     if [[ ! ${ROOT_PASSWORD} ]]; then
         return 1
     fi
+    return 0
 }
 
 function set_login_user() {
@@ -289,10 +292,12 @@ function set_login_user() {
     fi
     
     set_password ${USER_NAME} USER_PASSWORD ${USER_PASSWORD}
+    return 1
 }
 
 function Set_SwapfileSize(){
     read -p "Input SwapfileCount(M):" SWAP_COUNT
+    return 1
 }
 
 function set_hostname() {
@@ -301,6 +306,7 @@ function set_hostname() {
     if [[ ! -z ${result} ]]; then 
         HOSTNAME=${result}
     fi
+    return 1
 }
 
 function set_uefi_boot_type(){
@@ -319,10 +325,22 @@ function set_uefi_boot_type(){
             break
         else
             invalid_option
+            return 0
         fi
       
     done
 
+    return 1
+}
+
+function set_other_tag(){
+    confirm_operation "Set Other OS?"
+    if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]]; then
+        OTHER_OS="yes"
+    else
+        OTHER_OS="no"
+    fi
+    return 1
 }
 
 
@@ -339,7 +357,7 @@ function format_devicesXXXX() {
     fi
 
     confirm_operation "${INSTALL_DEVICE} data will lost, Are you sure?"
-    if [[ ${OPTION} = "y" ]] || [[ ${OPTION} == "" ]];  then
+    if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
         cfdisk ${INSTALL_DEVICE}
         return
 
@@ -438,7 +456,10 @@ function bootloader_uefi() {
 
 function bootloader_uefi_grub() {
 
-    arch_chroot "pacman -S efibootmgr grub --noconfirm"
+    arch_chroot "pacman -S --needed efibootmgr grub --noconfirm"
+    if [[ ${OTHER_OS} == "no" ]]; then
+        arch_chroot "pacman -S --needed os-prober ntfs-3g --noconfirm"
+    fi
     arch_chroot "grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi"
     arch_chroot "mkdir -p /boot/efi/EFI/BOOT"
     arch_chroot "cp /boot/efi/EFI/GRUB/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI"
@@ -447,13 +468,13 @@ function bootloader_uefi_grub() {
 }
 
 function bootloader_bios() {
-     arch_chroot "pacman -S grub --noconfirm"
+     arch_chroot "pacman -S --needed grub --noconfirm"
     arch_chroot "grub-install ${INSTALL_DEVICE}"
     arch_chroot "grub-mkconfig -o /boot/grub/grub.cfg"
 }
 
 function bootloader_uefi_systemd(){
-    arch_chroot "pacman -S efibootmgr --noconfirm"
+    arch_chroot "pacman -S --needed efibootmgr --noconfirm"
     arch_chroot "bootctl install"
     sed -i '/#timeout 3/s/^#//g' /mnt/boot/loader/loader.conf
     echo "title Arch Linux" >> /mnt/boot/loader/entries/arch.conf
@@ -537,11 +558,12 @@ while true; do
     echo " 1) $(mainmenu_item "${checklist[1]}"  "Set Mirrors"             "${MIRRORLIST_COUNTRY}" )"
     echo " 2) $(mainmenu_item "${checklist[2]}"  "Select_device"              "${INSTALL_DEVICE}" )"
     echo " 3) $(mainmenu_item "${checklist[3]}"  "Set UEFI boot type"             "${UEFI_BOOT_TYPE}" )"
-    echo " 4) $(mainmenu_item "${checklist[4]}"  "Select Partion"              "boot:${BOOT_PARTION} root:${ROOT_PARTION}" )"
-    echo " 5) $(mainmenu_item "${checklist[5]}"  "Set SwapfileSize"              "${SWAP_COUNT}M" )"
-    echo " 6) $(mainmenu_item "${checklist[6]}"  "Set Hostname"              "${HOSTNAME}" )"
-    echo " 7) $(mainmenu_item "${checklist[7]}"  "Set Root Password"          "${ROOT_PASSWORD}" )"
-    echo " 8) $(mainmenu_item "${checklist[8]}"  "Set Login User"             "${USER_NAME}/${USER_PASSWORD}" )"
+    echo " 4) $(mainmenu_item "${checklist[4]}"  "Has Other OperationSystem"             "${OTHER_OS}" )"
+    echo " 5) $(mainmenu_item "${checklist[5]}"  "Select Partion"              "boot:${BOOT_PARTION} root:${ROOT_PARTION}" )"
+    echo " 6) $(mainmenu_item "${checklist[6]}"  "Set SwapfileSize"              "${SWAP_COUNT}M" )"
+    echo " 7) $(mainmenu_item "${checklist[7]}"  "Set Hostname"              "${HOSTNAME}" )"
+    echo " 8) $(mainmenu_item "${checklist[8]}"  "Set Root Password"          "${ROOT_PASSWORD}" )"
+    echo " 9) $(mainmenu_item "${checklist[9]}"  "Set Login User"             "${USER_NAME}/${USER_PASSWORD}" )"
     
     
     echo ""
@@ -552,14 +574,51 @@ while true; do
     read_input_options
     for OPT in ${OPTIONS[@]}; do
         case ${OPT} in
-            1) checklist[1]=1 && set_mirrors;;
-            2) checklist[2]=1 && select_device;;
-            3) checklist[3]=1 && set_uefi_boot_type;;
-            4) checklist[4]=1 && select_partion;;
-            5) checklist[5]=1 && Set_SwapfileSize;;
-            6) checklist[6]=1 && set_hostname;;
-            7) checklist[7]=1 && set_root_password;;
-            8) checklist[8]=1 && set_login_user;;
+            1)
+                set_mirrors 
+                checklist[1]=$?
+                pause
+                ;;
+            2) 
+                select_device
+                checklist[2]=$?
+                pause
+                ;;
+            3)
+                set_uefi_boot_type
+                checklist[3]=$?
+                pause
+                ;;
+            4) 
+                set_other_tag
+                checklist[4]=$?                
+                pause
+                ;;
+            5)
+                select_partion
+                checklist[5]=$?
+                pause
+                ;;
+            6) 
+                Set_SwapfileSize
+                checklist[6]=$?
+                pause
+                ;;
+            7)
+                set_hostname
+                checklist[7]=$?
+                pause
+                ;;
+            8)
+                set_root_password
+                checklist[8]=$?
+                pause
+                ;;
+            9)
+                set_login_user
+                checklist[9]=$?
+                pause
+                ;;
             
             "i") install;;
             "q") exit 0;;
