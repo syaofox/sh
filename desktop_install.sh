@@ -302,7 +302,7 @@ function install_kde(){
 
     sudo pacman -S --needed --noconfirm discover packagekit-qt5 
 
-    yay -S kget kget-integrator kget-integrator-chromium 
+    #yay -S kget kget-integrator kget-integrator-chromium 
 
     yay -S --needed  kcm-colorful-git breeze-blurred-git
 }
