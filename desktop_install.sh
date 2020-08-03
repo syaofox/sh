@@ -212,6 +212,11 @@ function systemd_resolved(){
     sudo systemctl enable systemd-resolved.service
     sudo cp /etc/resolv.conf /etc/resolv.conf.bak
     sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
+    # Enable and start avahi name resolution
+    sudo systemctl start avahi-daemon.service
+    sudo systemctl enable avahi-daemon.service
+    sudo sed -i 's/^hosts: files*/hosts: files mdns_minimal [NOTFOUND=return]/' /etc/nsswitch.conf
 }
 
 function install_smb(){
@@ -225,6 +230,7 @@ function install_smb(){
 
     echo '10.10.10.1	openwrt' |sudo tee -a /etc/hosts
     echo '10.10.10.3	omvnas' |sudo tee -a /etc/hosts
+    
 
     echo '//omvnas/share /media/smb/omvnas/share cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee -a /etc/fstab
     echo '//omvnas/me /media/smb/omvnas/me cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' |sudo tee -a /etc/fstab
@@ -309,7 +315,7 @@ function install_kde(){
 
 function install_xfce() {
     echo "Install Desktop"
-    sudo pacman -S --needed lightdm lightdm-webkit2-greeter xfce4 xfce4-goodies --noconfirm
+    sudo pacman -S --needed lightdm lightdm-webkit2-greeter xfce4 xfce4-goodies gvfs gvfs-smb sshfs --noconfirm
 
     echo "exec startxfce4" > ~/.xinitrc
 

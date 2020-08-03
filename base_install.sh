@@ -455,7 +455,7 @@ function configure_network(){
 
 function configure_user() {
     arch_chroot "echo 'root:${ROOT_PASSWORD}' | chpasswd"
-    arch_chroot "useradd -m -G wheel ${USER_NAME} && echo '${USER_NAME}:${USER_PASSWORD}' | chpasswd"
+    arch_chroot "useradd -m -G sys,log,network,floppy,scanner,power,rfkill,users,video,storage,optical,lp,audio,wheel,adm ${USER_NAME} && echo '${USER_NAME}:${USER_PASSWORD}' | chpasswd"
     arch_chroot "echo '${USER_NAME} ALL=(ALL:ALL) ALL' | EDITOR='tee -a' visudo"
 }
 
