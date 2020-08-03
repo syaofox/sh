@@ -208,10 +208,10 @@ function install_pkg(){
 }
 
 function systemd_resolved(){
-    sudo systemctl start systemd-resolved.service
-    sudo systemctl enable systemd-resolved.service
-    sudo cp /etc/resolv.conf /etc/resolv.conf.bak
-    sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+    #sudo systemctl start systemd-resolved.service
+    #sudo systemctl enable systemd-resolved.service
+    #sudo cp /etc/resolv.conf /etc/resolv.conf.bak
+    #sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
     # Enable and start avahi name resolution
     sudo systemctl start avahi-daemon.service
