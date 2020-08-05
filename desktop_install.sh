@@ -315,7 +315,7 @@ function install_kde(){
 
 function install_xfce() {
     echo "Install Desktop"
-    sudo pacman -S --needed lightdm lightdm-webkit2-greeter xfce4 xfce4-goodies gvfs gvfs-smb sshfs --noconfirm
+    sudo pacman -S --needed lightdm lightdm-webkit2-greeter xfce4 xfce4-goodies  xscreensaver gvfs gvfs-smb sshfs --noconfirm
 
     echo "exec startxfce4" > ~/.xinitrc
 
@@ -340,14 +340,9 @@ function install_xfce() {
     echo "Install lightdm-webkit Themes"
     yay -S lightdm-webkit-theme-aether
 
-    #sudo cp -r /usr/share/lightdm-webkit/themes/lightdm-webkit-theme-aether /usr/share/lightdm-webkit/themes/Aether
+    # echo "Install Themes"
+    # yay -S --needed mint-themes mint-x-icons mint-y-icons
 
-    #sudo sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = lightdm-webkit-theme-aether #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
-    #sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
-
-    echo "Install Themes"
-    yay -S --needed mint-themes mint-x-icons mint-y-icons
-    #yay -S --needed lightdm-webkit-theme-aether-git
 }
 
 function install_applications(){
@@ -369,9 +364,9 @@ function install_applications(){
 
     sudo pacman -S --needed --noconfirm chromium exa perl-rename  neofetch
 
-    curl -L   https://linux.dropbox.com/fedora/rpm-public-key.asc > rpm-public-key.asc 
-    gpg --import rpm-public-key.asc
-    yay -S --needed dropbox
+    # curl -L   https://linux.dropbox.com/fedora/rpm-public-key.asc > rpm-public-key.asc 
+    # gpg --import rpm-public-key.asc
+    # yay -S --needed dropbox
 
 }
 
