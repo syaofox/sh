@@ -491,9 +491,9 @@ function bootloader_uefi_systemd(){
     arch_chroot "bootctl install"
     sed -i '/#timeout 3/s/^#//g' /mnt/boot/loader/loader.conf
     echo "title Arch Linux" >> /mnt/boot/loader/entries/arch.conf
-    echo "linux /vmlinuz-linux-lts" >> /mnt/boot/loader/entries/arch.conf
+    echo "linux /vmlinuz-linux" >> /mnt/boot/loader/entries/arch.conf
     echo "initrd /intel-ucode.img" >> /mnt/boot/loader/entries/arch.conf
-    echo "initrd /initramfs-linux-lts.img" >> /mnt/boot/loader/entries/arch.conf
+    echo "initrd /initramfs-linux.img" >> /mnt/boot/loader/entries/arch.conf
     partuuid=$(blkid | grep ${ROOT_PARTION} | sed -r 's/.*?PARTUUID=\"(.*?)\"/\1/g')
     #partuuid=$(blkid | grep archroot | sed -r 's/.*?PARTUUID=\"(.*?)\"/\1/g')
     echo "options root=\"PARTUUID=${partuuid}\" rw" >> /mnt/boot/loader/entries/arch.conf
@@ -514,7 +514,7 @@ function system_install() {
     timedatectl set-ntp true
 
     # Install system-base
-    yes '' | pacstrap -i /mnt base base-devel linux-lts linux-lts-headers linux-firmware pacman-contrib intel-ucode sudo vim git dnsutils openssh
+    yes '' | pacstrap -i /mnt base base-devel linux linux-headers linux-firmware pacman-contrib intel-ucode sudo vim git dnsutils openssh
     yes '' | genfstab -U /mnt >> /mnt/etc/fstab
 
     # swap file
