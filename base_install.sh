@@ -18,7 +18,7 @@ OTHER_OS="no"
 UEFI_BIOS_TEXT="Boot Not Detected"
 INSTALL_DEVICE=
 MIRRORLIST_COUNTRY="CN"
-SWAP_COUNT="8192"
+SWAP_COUNT="38912"
 LOCALE_UTF8="en_US.UTF-8"
 ZONE="Asia"
 SUBZONE="Shanghai"
@@ -419,8 +419,6 @@ function make_swap() {
 function configure_locale() {
     arch_chroot "sed -i 's/#\(${LOCALE_UTF8}\)/\1/' /etc/locale.gen"
     arch_chroot "sed -i 's/#\(zh_CN.UTF-8\)/\1/' /etc/locale.gen"
-    arch_chroot "sed -i 's/#\(zh_HK.UTF-8\)/\1/' /etc/locale.gen"
-    arch_chroot "sed -i 's/#\(zh_TW.UTF-8\)/\1/' /etc/locale.gen"
 
     echo "LANG=${LOCALE_UTF8}" > "${MOUNT_POINT}/etc/locale.conf"
     arch_chroot "locale-gen"
