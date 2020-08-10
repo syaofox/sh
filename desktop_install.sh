@@ -182,26 +182,26 @@ function select_desktop_environment(){
 }
 
 function install_pkg(){
-    sudo pacman -S --needed mtools dosfstools xdg-utils xdg-user-dirs reflector archlinux-keyring nfs-utils --noconfirm
+    sudo pacman -S --needed haveged mtools dosfstools xdg-utils xdg-user-dirs reflector archlinux-keyring cifs-utils smbclient nfs-utils gvfs gvfs-smb ntfs-3g --noconfirm
     sudo pacman -S --needed xorg xorg-xinit xorg-server xf86-input-libinput --noconfirm
     sudo pacman -S --needed gstreamer gst-libav gst-plugins-base gst-plugins-good gstreamer-vaapi  gst-plugins-good --noconfirm
     sudo pacman -S --needed noto-fonts-cjk noto-fonts-emoji ttf-dejavu --noconfirm
-    sudo pacman -S --needed pulseaudio pulseaudio-alsa alsa-utils --noconfirm
+    sudo pacman -S --needed pulseaudio pulseaudio-alsa --noconfirm
     sudo pacman -S --needed bluez bluez-utils --noconfirm
   
     if [ $INTEL_GRAPHICS_DRIVER == "yes" ];then
-        sudo pacman -S --needed xf86-video-intel --noconfirm        
+        sudo pacman -S --needed xf86-video-intel vulkan-intel --noconfirm        
     elif [ $AMD_GRAPHICS_DRIVER == "yes" ];then
-        sudo pacman -S --needed xf86-video-amdgpu --noconfirm
+        sudo pacman -S --needed vulkan-radeon libva-mesa-driver xf86-video-amdgpu --noconfirm
      elif [ $VMWARE_GRAPHICS_DRIVER == "yes" ];then
         sudo pacman -S --needed xf86-video-vmware --noconfirm
     else
            invalid_option
     fi
 
-    sudo pacman -S --needed mesa  haveged --noconfirm
-    sudo pacman -S --needed traceroute bind-tools  ntfs-3g btrfs-progs exfat-utils gptfdisk  gvfs-fuse fuse2 fuse3 fuseiso cifs-utils smbclient nfs-utils gvfs gvfs-smb
-
+    # sudo pacman -S --needed mesa   --noconfirm
+    # sudo pacman -S --needed traceroute bind-tools  ntfs-3g btrfs-progs exfat-utils gptfdisk  gvfs-fuse fuse2 fuse3 fuseiso cifs-utils smbclient nfs-utils gvfs gvfs-smb
+    
     sudo systemctl enable bluetooth
     sudo systemctl start haveged
     sudo systemctl enable fstrim.timer
@@ -262,6 +262,38 @@ function install_yay(){
     sudo pacman -S --needed yay --noconfirm
 }
 
+function install_xfce() {
+    echo "Install Desktop"
+    # sudo pacman -S --needed lightdm lightdm-webkit2-greeter xfce4 xfce4-goodies  xscreensaver gvfs gvfs-smb sshfs --noconfirm
+    sudo pacman -S --needed --noconfirm lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings xfce4 xfce4-goodies
+    echo "exec startxfce4" > ~/.xinitrc
+
+    # sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
+    sudo systemctl enable lightdm
+
+    # xcape
+
+    # echo "Install pkgs"
+    # sudo pacman -S --needed cifs-utils --noconfirm
+
+    echo "Install pkgs"
+    sudo pacman -S --needed pavucontrol libcanberra libcanberra-pulse --noconfirm
+
+    sudo pacman -S --needed file-roller p7zip unrar unace lrzip squashfs-tools --noconfirm
+
+    sudo pacman -S --needed ffmpegthumbnailer ffmpegthumbs thunar-media-tags-plugin --noconfirm
+
+    echo "Install Themes"
+    sudo pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
+
+    # echo "Install lightdm-webkit Themes"
+    # yay -S lightdm-webkit-theme-aether
+
+    # echo "Install Themes"
+    # yay -S --needed mint-themes mint-x-icons mint-y-icons
+
+}
+
 function install_cinnamon(){
     
     sudo pacman -S --needed lightdm lightdm-webkit2-greeter cinnamon metacity  gnome-keyring xdg-utils xdg-user-dirs cinnamon-control-center cinnamon-desktop cinnamon-menus cinnamon-screensaver cinnamon-session cinnamon-settings-daemon cjs muffin cinnamon-translations qt5-translations man-pages-zh_cn poppler-data hyphen-en hunspell-en_US gstreamer gnome-system-monitor blueberry gnome-calculator xfce4-terminal --noconfirm
@@ -313,37 +345,7 @@ function install_kde(){
     yay -S --needed  kcm-colorful-git breeze-blurred-git
 }
 
-function install_xfce() {
-    echo "Install Desktop"
-    sudo pacman -S --needed lightdm lightdm-webkit2-greeter xfce4 xfce4-goodies  xscreensaver gvfs gvfs-smb sshfs --noconfirm
 
-    echo "exec startxfce4" > ~/.xinitrc
-
-    sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
-    sudo systemctl enable lightdm
-
- 
-
-    echo "Install pkgs"
-    sudo pacman -S --needed xcape cifs-utils --noconfirm
-
-    echo "Install pkgs"
-    sudo pacman -S --needed pavucontrol libcanberra libcanberra-pulse --noconfirm
-
-    sudo pacman -S --needed file-roller p7zip unrar unace lrzip squashfs-tools --noconfirm
-
-    sudo pacman -S --needed ffmpegthumbnailer ffmpegthumbs thunar-media-tags-plugin --noconfirm
-
-    echo "Install Themes"
-    sudo pacman -S --needed arc-gtk-theme arc-icon-theme papirus-icon-theme --noconfirm
-
-    echo "Install lightdm-webkit Themes"
-    yay -S lightdm-webkit-theme-aether
-
-    # echo "Install Themes"
-    # yay -S --needed mint-themes mint-x-icons mint-y-icons
-
-}
 
 function install_applications(){
     if [ $DESKTOP_ENVIRONMENT == "gnome" ];then        
@@ -388,8 +390,8 @@ function install() {
     print_tip "Mount Samba"
     install_smb
 
-    print_tip "Configrue yay & ArchLinuxCN"
-    install_yay
+    # print_tip "Configrue yay & ArchLinuxCN"
+    # install_yay
     
 
     if [ $DESKTOP_ENVIRONMENT == "xfce" ];then
