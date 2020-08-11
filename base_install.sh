@@ -385,12 +385,26 @@ function format_devicesXXXX() {
             system_partion="${INSTALL_DEVICE}p2"
         fi
 
-        [[ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ]] && print_error "Boot method isn't be detected!"
-        [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${boot_partion}
-        [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${boot_partion}
+        if [ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ] then
+            print_error "Boot method isn't be detected!"
+        fi
 
-        printf "n\n2\n\n\n8300\nw\ny\n"| gdisk ${INSTALL_DEVICE}
-        yes | mkfs.ext4  -L archroot  ${system_partion}
+        if [ ${UEFI_BIOS_TEXT} == "UEFI detected" ] then
+            mkfs.fat -F32 ${boot_partion}
+        fi
+
+        if [ ${UEFI_BIOS_TEXT} == "BIOS detected" ] then
+            mkfs.ext2 ${boot_partion}
+        fi
+
+        mkfs.ext4  -L archroot  ${system_partion}
+
+        # [[ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ]] && print_error "Boot method isn't be detected!"
+        # [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${boot_partion}
+        # [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${boot_partion}
+
+        # printf "n\n2\n\n\n8300\nw\ny\n"| gdisk ${INSTALL_DEVICE}
+        # yes | mkfs.ext4  -L archroot  ${system_partion}
 
         mount ${system_partion} /mnt
         
@@ -398,7 +412,7 @@ function format_devicesXXXX() {
             if [[ ${UEFI_BOOT_TYPE} = "grub" ]]; then
                 mkdir -p /mnt/boot/efi && mount ${boot_partion} /mnt/boot/efi
             elif  [[ ${UEFI_BOOT_TYPE} = "systemd" ]]; then
-                    mkdir -p /mnt/boot && mount ${boot_partion} /mnt/boot
+                mkdir -p /mnt/boot && mount ${boot_partion} /mnt/boot
             fi
         fi
     else 
