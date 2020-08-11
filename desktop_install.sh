@@ -349,10 +349,10 @@ function install_kde(){
 
 function install_applications(){
     if [ $DESKTOP_ENVIRONMENT == "gnome" ];then        
-        sudo pacman -S fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk fcitx5-material-color
-        yay -S fcitx5-config-qt-git
+        sudo pacman -S --noconfirm fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk fcitx5-material-color
+        # yay -S fcitx5-config-qt-git
     else
-        sudo pacman -S fcitx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
+        sudo pacman -S --noconfirm fcitx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
     fi
     # sudo pacman -S fcitx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
     echo "export GTK_IM_MODULE=fcitx5" >> ~/.xprofile
