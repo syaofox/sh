@@ -204,18 +204,29 @@ function select_partion() {
         pause
         return 0
     fi
+
+    
   
     if [[ ${BOOT_PARTION} != "" ]] && [[ ${ROOT_PARTION} != "" ]]; then
         [[ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ]] && print_error "Boot method isn't be detected!"
         if [[ ${OTHER_OS} == "no" ]]; then
-            [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${BOOT_PARTION}
+            # [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${BOOT_PARTION}
+            if [ ${UEFI_BIOS_TEXT} == "UEFI detected" ] then
+                mkfs.fat -F32 ${boot_partion}
+            fi        
         fi
-        [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${BOOT_PARTION}
 
-        printf "n\n2\n\n\n8300\nw\ny\n"| gdisk ${INSTALL_DEVICE}
-        yes | mkfs.ext4  ${ROOT_PARTION}
+        if [ ${UEFI_BIOS_TEXT} == "BIOS detected" ] then
+            mkfs.ext2 ${boot_partion}
+        fi
+        # [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${BOOT_PARTION}
+
+        # printf "n\n2\n\n\n8300\nw\ny\n"| gdisk ${INSTALL_DEVICE}
+        # yes | mkfs.ext4  ${ROOT_PARTION}
         # yes | mkfs.ext4  -L archroot  ${ROOT_PARTION}
 
+        mkfs.ext4  -L archroot  ${ROOT_PARTION}
+        
         mount ${ROOT_PARTION} /mnt
         
         if [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] ; then
@@ -358,67 +369,67 @@ function set_other_tag(){
 
 
 
-function format_devicesXXXX() {
-    # TODO 
-    # Support LVM?
+# function format_devicesXXXX() {
+#     # TODO 
+#     # Support LVM?
 
-    if [[ ${INSTALL_DEVICE} == "" ]]; then
-        checklist[3]=0
-        return
+#     if [[ ${INSTALL_DEVICE} == "" ]]; then
+#         checklist[3]=0
+#         return
 
-        exit
-    fi
+#         exit
+#     fi
 
-    confirm_operation "${INSTALL_DEVICE} data will lost, Are you sure?"
-    if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
-        cfdisk ${INSTALL_DEVICE}
-        return
+#     confirm_operation "${INSTALL_DEVICE} data will lost, Are you sure?"
+#     if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
+#         cfdisk ${INSTALL_DEVICE}
+#         return
 
-        exit
+#         exit
 
-        sgdisk --zap-all ${INSTALL_DEVICE}
-        local boot_partion="${INSTALL_DEVICE}1"
-        local system_partion="${INSTALL_DEVICE}2"
+#         sgdisk --zap-all ${INSTALL_DEVICE}
+#         local boot_partion="${INSTALL_DEVICE}1"
+#         local system_partion="${INSTALL_DEVICE}2"
 
-        if [ ${IS_NVME} == "yes" ]; then
-            boot_partion="${INSTALL_DEVICE}p1"
-            system_partion="${INSTALL_DEVICE}p2"
-        fi
+#         if [ ${IS_NVME} == "yes" ]; then
+#             boot_partion="${INSTALL_DEVICE}p1"
+#             system_partion="${INSTALL_DEVICE}p2"
+#         fi
 
-        if [ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ] then
-            print_error "Boot method isn't be detected!"
-        fi
+#         if [ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ] then
+#             print_error "Boot method isn't be detected!"
+#         fi
 
-        if [ ${UEFI_BIOS_TEXT} == "UEFI detected" ] then
-            mkfs.fat -F32 ${boot_partion}
-        fi
+#         if [ ${UEFI_BIOS_TEXT} == "UEFI detected" ] then
+#             mkfs.fat -F32 ${boot_partion}
+#         fi
 
-        if [ ${UEFI_BIOS_TEXT} == "BIOS detected" ] then
-            mkfs.ext2 ${boot_partion}
-        fi
+#         if [ ${UEFI_BIOS_TEXT} == "BIOS detected" ] then
+#             mkfs.ext2 ${boot_partion}
+#         fi
 
-        mkfs.ext4  -L archroot  ${system_partion}
+#         mkfs.ext4  -L archroot  ${system_partion}
 
-        # [[ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ]] && print_error "Boot method isn't be detected!"
-        # [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${boot_partion}
-        # [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${boot_partion}
+#         # [[ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ]] && print_error "Boot method isn't be detected!"
+#         # [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] && printf "n\n1\n\n+512M\nef00\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.fat -F32 ${boot_partion}
+#         # [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${boot_partion}
 
-        # printf "n\n2\n\n\n8300\nw\ny\n"| gdisk ${INSTALL_DEVICE}
-        # yes | mkfs.ext4  -L archroot  ${system_partion}
+#         # printf "n\n2\n\n\n8300\nw\ny\n"| gdisk ${INSTALL_DEVICE}
+#         # yes | mkfs.ext4  -L archroot  ${system_partion}
 
-        mount ${system_partion} /mnt
+#         mount ${system_partion} /mnt
         
-        if [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] ; then
-            if [[ ${UEFI_BOOT_TYPE} = "grub" ]]; then
-                mkdir -p /mnt/boot/efi && mount ${boot_partion} /mnt/boot/efi
-            elif  [[ ${UEFI_BOOT_TYPE} = "systemd" ]]; then
-                mkdir -p /mnt/boot && mount ${boot_partion} /mnt/boot
-            fi
-        fi
-    else 
-        checklist[3]=0
-    fi
-}
+#         if [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]] ; then
+#             if [[ ${UEFI_BOOT_TYPE} = "grub" ]]; then
+#                 mkdir -p /mnt/boot/efi && mount ${boot_partion} /mnt/boot/efi
+#             elif  [[ ${UEFI_BOOT_TYPE} = "systemd" ]]; then
+#                 mkdir -p /mnt/boot && mount ${boot_partion} /mnt/boot
+#             fi
+#         fi
+#     else 
+#         checklist[3]=0
+#     fi
+# }
 
 function make_swap() {   
     dd if=/dev/zero of=/mnt/swapfile bs=1M count=${SWAP_COUNT} status=progress #8G
