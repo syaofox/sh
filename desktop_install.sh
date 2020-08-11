@@ -364,7 +364,7 @@ function install_applications(){
     echo "export XMODIFIERS=@im=fcitx5" >> ~/.xinitrc
     echo "export QT_IM_MODULE=fcitx5" >> ~/.xinitrc
 
-    sudo pacman -S --needed --noconfirm chromium exa perl-rename  neofetch
+    sudo pacman -S --needed --noconfirm  exa perl-rename  neofetch
 
     # curl -L   https://linux.dropbox.com/fedora/rpm-public-key.asc > rpm-public-key.asc 
     # gpg --import rpm-public-key.asc
