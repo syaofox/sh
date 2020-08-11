@@ -183,7 +183,7 @@ function select_desktop_environment(){
 
 function install_pkg(){
     sudo pacman -S --needed haveged mtools dosfstools xdg-utils xdg-user-dirs reflector archlinux-keyring cifs-utils smbclient nfs-utils gvfs gvfs-smb ntfs-3g --noconfirm
-    sudo pacman -S --needed xorg xorg-xinit xorg-server xf86-input-libinput --noconfirm
+    sudo pacman -S --needed xorg xorg-xinit xorg-server --noconfirm
     sudo pacman -S --needed gstreamer gst-libav gst-plugins-base gst-plugins-good gstreamer-vaapi  gst-plugins-good --noconfirm
     sudo pacman -S --needed noto-fonts-cjk noto-fonts-emoji ttf-dejavu --noconfirm
     sudo pacman -S --needed pulseaudio pulseaudio-alsa --noconfirm
@@ -199,7 +199,7 @@ function install_pkg(){
            invalid_option
     fi
 
-    # sudo pacman -S --needed mesa   --noconfirm
+    sudo pacman -S --needed mesa xf86-input-libinput--noconfirm
     # sudo pacman -S --needed traceroute bind-tools  ntfs-3g btrfs-progs exfat-utils gptfdisk  gvfs-fuse fuse2 fuse3 fuseiso cifs-utils smbclient nfs-utils gvfs gvfs-smb
     
     sudo systemctl enable bluetooth
