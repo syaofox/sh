@@ -165,7 +165,7 @@ function set_vmware() {
 }
 
 function select_desktop_environment(){
-    local desks=("xfce" "kde" "cinnamon" "dde" "gnome" )
+    local desks=("xfce" "kde" "cinnamon" "dde" "gnome" "lxqt")
     PS3=${PROMPT_1}
     echo -e "Select Desktop Environment:\n"
     select desk in "${desks[@]}"; do
@@ -413,6 +413,10 @@ function install() {
     elif [ $DESKTOP_ENVIRONMENT == "gnome" ];then
         print_tip "Install gnome"
         install_gnome
+    elif [ $DESKTOP_ENVIRONMENT == "lxqt" ];then
+        print_tip "Install lxqt"
+        install_lxqt
+       
     else
         print_tip "Install kde"
         install_kde
