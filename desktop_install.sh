@@ -347,7 +347,17 @@ function install_kde(){
 
 function install_lxqt(){
     echo "exec startlxqt" > ~/.xinitrc
-    sudo pacman -S --needed --noconfirm lightdm lightdm-gtk-greeter lxqt lxqt-themes picom kvantum-qt5 arc-gtk-theme
+    # echo "picom &" >> ~/.xinitrc
+    # echo "picom &" >> ~/.xprofile
+
+    
+
+
+    sudo pacman -S --needed --noconfirm lightdm lightdm-webkit2-greeter lightdm-webkit-theme-litarvan lxqt lxqt-themes picom kvantum-qt5 arc-gtk-theme alacarte
+
+    sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
+    sudo sed -i 's/#antergos/litarvan/g' /etc/lightdm/lightdm-webkit2-greeter.conf
+
     sudo systemctl enable lightdm
 
 }
