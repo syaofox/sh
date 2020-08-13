@@ -210,13 +210,13 @@ function select_partion() {
     if [[ ${BOOT_PARTION} != "" ]] && [[ ${ROOT_PARTION} != "" ]]; then
         [[ ${UEFI_BIOS_TEXT} == "Boot Not Detected" ]] && print_error "Boot method isn't be detected!"
         if [[ ${OTHER_OS} == "no" ]]; then
-            if [ ${UEFI_BIOS_TEXT} == "UEFI detected" ]; then
-                mkfs.fat -F32 ${boot_partion}
+            if [[ ${UEFI_BIOS_TEXT} == "UEFI detected" ]]; then
+                mkfs.fat -F32 ${BOOT_PARTION}
             fi        
         fi
 
-        if [ ${UEFI_BIOS_TEXT} == "BIOS detected" ]; then
-            mkfs.ext2 ${boot_partion}
+        if [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]]; then
+            mkfs.ext2 ${BOOT_PARTION}
         fi
         # [[ ${UEFI_BIOS_TEXT} == "BIOS detected" ]] && printf "n\n1\n\n+2M\nef02\nw\ny\n" | gdisk ${INSTALL_DEVICE} && yes | mkfs.ext2 ${BOOT_PARTION}
 
