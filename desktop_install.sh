@@ -345,12 +345,18 @@ function install_kde(){
     yay -S --needed  kcm-colorful-git breeze-blurred-git
 }
 
+function install_lxqt(){
+    echo "exec startlxqt" > ~/.xinitrc
+    sudo pacman -S --needed --noconfirm lightdm lightdm-gtk-greeter lxqt lxqt-themes picom kvantum-qt5
+
+
+}
 
 
 function install_applications(){
     if [ $DESKTOP_ENVIRONMENT == "gnome" ];then        
         sudo pacman -S --noconfirm fcitx5 fcitx5-chinese-addons fcitx5-qt fcitx5-gtk fcitx5-material-color
-        # yay -S fcitx5-config-qt-git
+        yay -S fcitx5-config-qt-git
     else
         sudo pacman -S --noconfirm fcitx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
     fi
@@ -390,8 +396,8 @@ function install() {
     print_tip "Mount Samba"
     install_smb
 
-    # print_tip "Configrue yay & ArchLinuxCN"
-    # install_yay
+    print_tip "Configrue yay & ArchLinuxCN"
+    install_yay
     
 
     if [ $DESKTOP_ENVIRONMENT == "xfce" ];then
