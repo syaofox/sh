@@ -374,8 +374,10 @@ function install_lxqt(){
 
 function install_i3(){
     sudo pacman -S --needed file-roller p7zip unrar unace lrzip squashfs-tools --noconfirm
-    sudo pacman -S --needed i3-wm i3lock i3status i3blocks dmenu terminator
+    sudo pacman -S --needed i3-wm i3lock i3status i3blocks dmenu terminator albert feh
     sudo cp /etc/X11/xinit/xinitrc  ~/.xinitrc
+
+    sudo pacman -S --needed pcmanfm
 
 }
 
