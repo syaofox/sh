@@ -353,7 +353,7 @@ function install_lxqt(){
     
 
 
-    sudo pacman -S --needed --noconfirm lightdm lightdm-webkit2-greeter lxqt lxqt-themes picom kvantum-qt5 arc-gtk-theme alacarte
+    sudo pacman -S --needed --noconfirm lightdm lightdm-webkit2-greeter lxqt lxqt-themes picom kvantum-qt5 arc-gtk-theme
     yay -S lightdm-webkit-theme-aether
     # lightdm-webkit-theme-litarvan
 
