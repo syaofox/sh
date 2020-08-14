@@ -348,15 +348,24 @@ function install_kde(){
 function install_lxqt(){
     echo "exec startlxqt" > ~/.xinitrc
     # echo "picom &" >> ~/.xinitrc
-    # echo "picom &" >> ~/.xprofile
+    echo "picom &" >> ~/.xprofile
 
     
 
 
-    sudo pacman -S --needed --noconfirm lightdm lightdm-webkit2-greeter lightdm-webkit-theme-litarvan lxqt lxqt-themes picom kvantum-qt5 arc-gtk-theme alacarte
+    sudo pacman -S --needed --noconfirm lightdm lightdm-webkit2-greeter lxqt lxqt-themes picom kvantum-qt5 arc-gtk-theme alacarte
+    yay -S lightdm-webkit-theme-aether
+    # lightdm-webkit-theme-litarvan
 
-    sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
-    sudo sed -i 's/#antergos/litarvan/g' /etc/lightdm/lightdm-webkit2-greeter.conf
+    # sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
+    # sudo sed -i 's/#antergos/litarvan/g' /etc/lightdm/lightdm-webkit2-greeter.conf
+
+    # Set default lightdm-webkit2-greeter theme to Aether
+    sudo sed -i 's/^webkit_theme\s*=\s*\(.*\)/webkit_theme = lightdm-webkit-theme-aether #\1/g' /etc/lightdm/lightdm-webkit2-greeter.conf
+
+    # Set default lightdm greeter to lightdm-webkit2-greeter
+    sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
+
 
     sudo systemctl enable lightdm
 
