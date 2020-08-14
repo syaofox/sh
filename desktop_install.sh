@@ -372,6 +372,13 @@ function install_lxqt(){
     sudo pacman -S --needed file-roller p7zip unrar unace lrzip squashfs-tools --noconfirm
 }
 
+function install_i3(){
+    sudo pacman -S --needed file-roller p7zip unrar unace lrzip squashfs-tools --noconfirm
+    sudo pacman -S --needed i3-wm i3lock i3status i3blocks dmenu terminator
+    sudo cp /etc/X11/xinit/xinitrc  ~/.xinitrc
+
+}
+
 
 function install_applications(){
     if [ $DESKTOP_ENVIRONMENT == "gnome" ];then        
