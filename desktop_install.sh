@@ -354,7 +354,7 @@ function install_lxqt(){
 
 
     sudo pacman -S --needed --noconfirm lightdm lightdm-webkit2-greeter lxqt lxqt-themes picom kvantum-qt5 arc-gtk-theme
-    yay -S lightdm-webkit-theme-aether
+    yay -S lightdm-webkit-theme-aether-git
     # lightdm-webkit-theme-litarvan
 
     # sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
@@ -366,9 +366,10 @@ function install_lxqt(){
     # Set default lightdm greeter to lightdm-webkit2-greeter
     sudo sed -i 's/^\(#?greeter\)-session\s*=\s*\(.*\)/greeter-session = lightdm-webkit2-greeter #\1/ #\2g' /etc/lightdm/lightdm.conf
 
-
+    
     sudo systemctl enable lightdm
 
+    sudo pacman -S --needed file-roller p7zip unrar unace lrzip squashfs-tools --noconfirm
 }
 
 
