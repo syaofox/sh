@@ -265,10 +265,11 @@ function install_yay(){
 function install_xfce() {
     echo "Install Desktop"
     # sudo pacman -S --needed lightdm lightdm-webkit2-greeter xfce4 xfce4-goodies  xscreensaver gvfs gvfs-smb sshfs --noconfirm
-    sudo pacman -S --needed --noconfirm lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings xfce4 xfce4-goodies
+    # sudo pacman -S --needed --noconfirm lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings xfce4 xfce4-goodies
+    sudo pacman -S --needed --noconfirm lightdm lightdm-webkit2-greeter lightdm-gtk-greeter-settings xfce4 xfce4-goodies
     echo "exec startxfce4" > ~/.xinitrc
 
-    # sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
+    sudo sed -i 's/#greeter-session=example-gtk-gnome/greeter-session=lightdm-webkit2-greeter/g' /etc/lightdm/lightdm.conf
     sudo systemctl enable lightdm
 
     # xcape
