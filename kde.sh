@@ -148,6 +148,9 @@ unmountdevices(){
 
 archchroot(){
 	echo "arch-chroot /mnt /root"
+    print_line
+    echo ${0}
+    print_line
 	cp ${0} /mnt/root
 	chmod 755 /mnt/root/$(basename "${0}")
 	arch-chroot /mnt /root/$(basename "${0}") --chroot ${1} ${2} ${3}
@@ -157,6 +160,7 @@ archchroot(){
 
 
 select_mirrors(){
+    clear
     echo "Server = https://mirrors.bfsu.edu.cn/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
     pacman -Syyy --noconfirm
     
@@ -301,6 +305,7 @@ install_basepkg(){
 }
 
 gen_fstab(){
+    truncate -s 0 /mnt/etc/fstab	
     yes '' | genfstab -U /mnt >> /mnt/etc/fstab
     cat /mnt/etc/fstab
 }
