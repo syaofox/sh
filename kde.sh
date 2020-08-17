@@ -148,9 +148,7 @@ unmountdevices(){
 
 archchroot(){
 	echo "arch-chroot /mnt /root"
-    print_line
-    echo ${0}
-    print_line
+    
 	cp ${0} /mnt/root
 	chmod 755 /mnt/root/$(basename "${0}")
 	arch-chroot /mnt /root/$(basename "${0}") --chroot ${1} ${2} ${3}
