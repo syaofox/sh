@@ -11,6 +11,11 @@ loadstrings() {
     ZONE="Asia"
     SUBZONE="Shanghai"
 
+    ROOT_PASSWORD="0928"
+    USER_NAME="syaofox"
+    USER_PASSWORD="0928"
+    ISSSDTRIM="off"
+
     # COLORS {{{
         Bold=$(tput bold)
         Reset=$(tput sgr0)
@@ -43,8 +48,10 @@ loadstrings() {
     txteditparts="Edit Partitions"
 
     txtformatparts="Format Partitions and mount"
-
     
+    txtinstallmediacodecs="Install Mediacodecs"
+    
+    txtinstallfonts="Install Fonts"
 
 
     txtinstallbasepkg="Install Basepkg"
@@ -58,7 +65,22 @@ loadstrings() {
 	txtgenlocale="Gen Locale"
 	txtsettime="Set Time"
 
+    txtsetrootpassword="Set Rootpasswd"
+    txtadduser="Add user"
+
+    txtbootloader="Install Bootloader"
+
+    txtinstallextrapkgs="Install Extra Pakages"
+    txtdrivers="Install Drivers"
+
+    txtswitchssdtrim="Switch SSD Trim"
+
+    txtinstallkde="Install KDE"
+
+    txtswappiness="Set Swappiness"
+
     txtunmount="Unmount"
+    txtreboot="Reboot"
 }
 
 
@@ -128,7 +150,7 @@ archchroot(){
 	echo "arch-chroot /mnt /root"
 	cp ${0} /mnt/root
 	chmod 755 /mnt/root/$(basename "${0}")
-	arch-chroot /mnt /root/$(basename "${0}") --chroot ${1} ${2}
+	arch-chroot /mnt /root/$(basename "${0}") --chroot ${1} ${2} ${3}
 	rm /mnt/root/$(basename "${0}")
 	echo "exit"
 }
@@ -171,24 +193,6 @@ select_device() {
         INSTALL_DEVICE=${device}
 	fi
     clear
-    
-    # local devices_list=(`lsblk -d | awk 'NR>1 { print "/dev/" $1 }'`)
-    # PS3=${PROMPT_1}
-    # echo -e "Select device to install Arch Linux:\n"
-    # select device in "${devices_list[@]}"; do
-    #     if contains_element ${device} ${devices_list[@]}; then 
-    #         confirm_operation "Do you wish to init ${device}(delele partition table)? Data on ${device} will be damaged"
-    #         if [[ ${OPTION} == "y" ]] || [[ ${OPTION} == "" ]];  then
-    #             dd if=/dev/zero of=${device} bs=512 count=1 conv=notrunc
-    #         fi
-    #         INSTALL_DEVICE=${device}
-    #         cfdisk ${INSTALL_DEVICE}            
-    #         break
-    #     else            
-    #         invalid_option
-    #         break
-    #     fi
-    # done
 
 }
 
@@ -270,7 +274,7 @@ install_basepkg(){
     options+=("base-devel" "(${txtoptional})" on)
     options+=("linux-firmware" "(${txtoptional})" on)
     options+=("intel-ucode" "(${txtoptional})" on)
-    options+=("pacman-contrib" "(${txtoptional})" on)
+    # options+=("pacman-contrib" "(${txtoptional})" on)
     options+=("sudo" "(${txtoptional})" on)
     options+=("vim" "(${txtoptional})" on)
     options+=("nano" "(${txtoptional})" on)
@@ -334,7 +338,7 @@ archsethostname(){
 		echo "echo \"${hostname}\" > /mnt/etc/hostname"
 		echo "${hostname}" > /mnt/etc/hostname
         cat  /mnt/etc/hostname
-		pressanykey
+		
 	fi
 }
 
@@ -381,7 +385,7 @@ archgenlocale(){
 	echo "echo \"LANG=${sellocale}.UTF-8\" > /mnt/etc/locale.conf"
     echo "LANG=${sellocale}.UTF-8" > /mnt/etc/locale.conf
 
-	pressanykey
+	
 }
 
 archgenlocalechroot(){
@@ -400,6 +404,344 @@ archsettimechroot(){
     exit
 }
 
+setrootpasswd(){
+    ROOT_PASSWORD=$(whiptail --backtitle "${apptitle}" --title "${txtsetrootpassword}" --inputbox "" 0 0 "${ROOT_PASSWORD}" 3>&1 1>&2 2>&3)
+	if [ "$?" = "0" ]; then
+		clear
+		archchroot setrootpasswd ${ROOT_PASSWORD}
+		
+	fi
+}
+
+archsetrootpasswdchroot(){
+    if [ ! "${1}" = "none" ]; then
+        echo 'Set root Password:'${1}
+        echo root":"${1} | chpasswd
+    fi
+    
+    # useradd -m -G sys,log,network,floppy,scanner,power,rfkill,users,video,storage,optical,lp,audio,wheel,adm ${USER_NAME} && echo '${USER_NAME}:${USER_PASSWORD}' | chpasswd
+    # echo '${USER_NAME} ALL=(ALL:ALL) ALL' | EDITOR='tee -a' visudo
+}
+
+adduser(){
+    local usrname="0"
+    local upsw="0"
+    USER_NAME=$(whiptail --backtitle "${apptitle}" --title "${txtadduser}:Set user name" --inputbox "" 0 0 "${USER_NAME}" 3>&1 1>&2 2>&3)
+	if [ "$?" = "0" ]; then
+		usrname=${USER_NAME}		
+	fi
+
+    USER_PASSWORD=$(whiptail --backtitle "${apptitle}" --title "${txtadduser}:Set user password" --inputbox "" 0 0 "${USER_PASSWORD}" 3>&1 1>&2 2>&3)
+	if [ "$?" = "0" ]; then
+		upsw=${USER_PASSWORD}		
+	fi
+
+    if [ "${usrname}" != "0" ] && [ "${upsw}" != "0" ]; then
+        archchroot adduser ${usrname} ${upsw}
+    fi
+}
+
+archadduserchroot(){
+    
+    
+    if [ ! "${1}" = "none" ] && [ ! "${2}" = "none" ]; then
+        echo "Adduser User:"${1}" Password"${2}
+        
+        useradd -m -G sys,log,network,floppy,scanner,power,rfkill,users,video,storage,optical,lp,audio,wheel,adm ${1}
+        # echo "passwd "${1}
+        # passed=1
+        # while [[ ${passed} != 0 ]]; do
+        #     passwd ${1}
+        #     passed=$?
+        # done
+        # exit
+        echo ${1}":"${2} | chpasswd
+        echo "Addsudo User "${1}
+        echo ${1}' ALL=(ALL:ALL) ALL' | EDITOR='tee -a' visudo
+    fi
+}
+
+setbootloaderchroot(){
+    pacman -S --needed efibootmgr grub --noconfirm
+    grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi
+    # mkdir -p /boot/efi/EFI/BOOT
+    # cp /boot/efi/EFI/GRUB/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI
+    # echo 'bcf boot add 1 fs0:\EFI\grubx64.efi \"My GRUB bootloader\" && exit' > /boot/efi/startup.sh
+    grub-mkconfig -o /boot/grub/grub.cfg
+}
+
+installextrapkgs(){
+    pkgs=""
+    options=()               
+	options+=("haveged" "(${txtoptional})" on)
+    options+=("mtools" "(${txtoptional})" on)
+    options+=("dosfstools" "(${txtoptional})" on)
+    options+=("xdg-utils" "(${txtoptional})" on)
+    options+=("xdg-user-dirs" "(${txtoptional})" on)
+    
+    options+=("reflector" "(${txtoptional})" on)
+    options+=("archlinux-keyring" "(${txtoptional})" on)
+    options+=("cifs-utils" "(${txtoptional})" on)
+    options+=("smbclient" "(${txtoptional})" on)
+    options+=("nfs-utils" "(${txtoptional})" on)
+    options+=("gvfs" "(${txtoptional})" off)
+    options+=("gvfs-smb" "(${txtoptional})" off)
+
+    sel=$(whiptail --backtitle "${apptitle}" --title "${txtinstallextrapkgs}" --checklist "" 0 0 0 \
+		"${options[@]}" \
+		3>&1 1>&2 2>&3)
+	if [ ! "$?" = "0" ]; then
+		return 1
+	fi
+
+
+	for itm in $sel; do
+		pkgs="$pkgs $(echo $itm | sed 's/"//g')"
+	done
+
+    pkgs="$(echo $pkgs | sed 's/\s/_/g')"
+
+	archchroot installextrapkgs "${pkgs}"
+    
+}
+
+installextrapkgschroot(){
+    
+    if [ ! "${1}" = "none" ]; then
+        clear
+        pkgs="$(echo $1 | sed 's/_/ /g')"        
+        echo "Install:"${pkgs}
+        pacman -S --needed --noconfirm  ${pkgs}
+
+        if [[ "${pkgs}" == *"haveged"* ]]; then		
+            systemctl enable haveged
+        fi
+    fi
+}
+
+installdrivers(){
+    pkgs=""
+    options=()   
+      
+	options+=("xorg" "(${txtoptional})" on)
+    options+=("xorg-xinit" "(${txtoptional})" on)
+    options+=("xorg-server" "(${txtoptional})" on)
+    options+=("mesa" "(${txtoptional})" on)
+
+    options+=("networkmanager" "(${txtoptional})" on)
+    options+=("pulseaudio" "(${txtoptional})" on)
+    options+=("pulseaudio-bluetooth" "(${txtoptional})" on)
+    options+=("bluez" "(${txtoptional})" on)
+    options+=("bluedevil" "(${txtoptional})" on)
+    options+=("powerdevil" "(${txtoptional})" on)
+
+    options+=("xf86-video-intel" "(${txtoptional})" on)
+    options+=("vulkan-intel" "(${txtoptional})" on)
+    options+=("xf86-video-amdgpu" "(${txtoptional})" on)
+    options+=("libva-mesa-driver " "(${txtoptional})" on)
+    options+=("vulkan-radeon" "(${txtoptional})" on)
+
+    options+=("xf86-input-libinput" "(${txtoptional})" on)
+
+    options+=("xf86-video-vmware " "(${txtoptional})" off)
+
+
+
+
+ 
+
+    sel=$(whiptail --backtitle "${apptitle}" --title "${txtdrivers}" --checklist "" 0 0 0 \
+		"${options[@]}" \
+		3>&1 1>&2 2>&3)
+	if [ ! "$?" = "0" ]; then
+		return 1
+	fi
+	for itm in $sel; do
+		pkgs="$pkgs $(echo $itm | sed 's/"//g')"
+	done
+
+    pkgs="$(echo $pkgs | sed 's/\s/_/g')"
+
+	archchroot installdrivers "${pkgs}"
+}
+
+installdriverschroot(){
+    
+    if [ ! "${1}" = "none" ]; then
+        clear
+        pkgs="$(echo $1 | sed 's/_/ /g')"        
+        echo "Install:"${pkgs}
+        pacman -S --needed --noconfirm  ${pkgs}
+
+        if [[ "${pkgs}" == *"networkmanager"* ]]; then		
+            systemctl enable NetworkManager
+        fi
+
+        if [[ "${pkgs}" == *"bluez"* ]]; then		
+            systemctl enable bluetooth
+        fi      
+       
+
+    fi
+}
+
+installmediacodecs(){
+    pkgs=""
+    options=()   
+
+         
+      
+	options+=("gstreamer" "(${txtoptional})" on)
+    options+=("gst-libav" "(${txtoptional})" on)
+    options+=("gst-plugins-bad" "(${txtoptional})" off)
+    options+=("gst-plugins-base" "(${txtoptional})" on)
+    options+=("gst-plugins-good" "(${txtoptional})" on)
+    
+    options+=("gst-plugins-good" "(${txtoptional})" on)
+    options+=("gst-plugins-ugly" "(${txtoptional})" off)
+    
+    options+=("gstreamer-vaapi" "(${txtoptional})" on)
+
+    sel=$(whiptail --backtitle "${apptitle}" --title "${txtdrivers}" --checklist "" 0 0 0 \
+		"${options[@]}" \
+		3>&1 1>&2 2>&3)
+	if [ ! "$?" = "0" ]; then
+		return 1
+	fi
+	for itm in $sel; do
+		pkgs="$pkgs $(echo $itm | sed 's/"//g')"
+	done
+
+    pkgs="$(echo $pkgs | sed 's/\s/_/g')"
+
+	archchroot installmediacodecs "${pkgs}"
+}
+
+installfonts(){
+    pkgs=""
+    options=()   
+      
+	options+=("noto-fonts-cjk" "" on)
+    options+=("noto-fonts-emoji" "" on)
+    options+=("ttf-dejavu" "" on)
+    options+=("ttf-hack" "" on)    
+
+    options+=("wqy-microhei" "(${txtoptional})" off)
+    options+=("wqy-microhei-lite" "(${txtoptional})" off)    
+  
+    sel=$(whiptail --backtitle "${apptitle}" --title "${txtdrivers}" --checklist "" 0 0 0 \
+		"${options[@]}" \
+		3>&1 1>&2 2>&3)
+	if [ ! "$?" = "0" ]; then
+		return 1
+	fi
+	for itm in $sel; do
+		pkgs="$pkgs $(echo $itm | sed 's/"//g')"
+	done
+
+    pkgs="$(echo $pkgs | sed 's/\s/_/g')"
+
+	archchroot installfonts "${pkgs}"
+}
+
+installkde(){
+    pkgs=""
+    options=()   
+      
+	options+=("plasma-desktop" "" on)
+    options+=("plasma-nm" "" on)
+    options+=("plasma-pa" "" on)
+
+    options+=("sddm" "" on)    
+    options+=("sddm-kcm" "" on) 
+
+    options+=("pacman-contrib" "(${txtoptional})" on)
+    options+=("packagekit-qt5" "(${txtoptional})" on)
+    options+=("discover" "(${txtoptional})" on)
+
+    options+=("konsole" "(${txtoptional})" on)
+    options+=("dolphin" "(${txtoptional})" on)
+    options+=("ffmpegthumbs" "(${txtoptional})" on)
+    options+=("kate" "(${txtoptional})" on)
+    options+=("inkscape" "(${txtoptional})" on)
+    options+=("ark" "(${txtoptional})" on)
+    options+=("kinfocenter" "(${txtoptional})" on)
+    options+=("kwalletmanager" "(${txtoptional})" on)
+    options+=("gwenview" "(${txtoptional})" on)
+    options+=("kipi-plugins" "(${txtoptional})" on)
+    options+=("spectacle" "(${txtoptional})" on)
+    options+=("okular" "(${txtoptional})" on)
+    options+=("vlc" "(${txtoptional})" on)
+    options+=("kcalc" "(${txtoptional})" on)
+    options+=("kruler" "(${txtoptional})" on)
+    options+=("kompare" "(${txtoptional})" on)
+    options+=("kdf" "(${txtoptional})" on)
+    options+=("juk" "(${txtoptional})" on)
+
+
+  
+    sel=$(whiptail --backtitle "${apptitle}" --title "${txtdrivers}" --checklist "" 0 0 0 \
+		"${options[@]}" \
+		3>&1 1>&2 2>&3)
+	if [ ! "$?" = "0" ]; then
+		return 1
+	fi
+	for itm in $sel; do
+		pkgs="$pkgs $(echo $itm | sed 's/"//g')"
+	done
+
+    pkgs="$(echo $pkgs | sed 's/\s/_/g')"
+
+	archchroot installkde "${pkgs}"
+
+}
+
+
+installkdechroot(){
+    if [ ! "${1}" = "none" ]; then
+        clear
+        pkgs="$(echo $1 | sed 's/_/ /g')"        
+        echo "Install:"${pkgs}
+        pacman -S --needed --noconfirm  ${pkgs}
+
+        if [[ "${pkgs}" == *"sddm"* ]]; then		
+            systemctl enable sddm
+        fi
+    fi
+}
+
+installpkgchroot(){
+    if [ ! "${1}" = "none" ]; then
+        clear
+        pkgs="$(echo $1 | sed 's/_/ /g')"        
+        echo "Install:"${pkgs}
+        pacman -S --needed --noconfirm  ${pkgs}
+    fi
+}
+
+switchssdtrim() {
+     if [ "${ISSSDTRIM}" = "on" ]; then
+            ISSSDTRIM="off"
+        else
+            ISSSDTRIM="on"
+        fi
+    archchroot switchssdtrim $ISSSDTRIM
+}
+
+switchssdtrimchroot(){
+    if [ ! "${1}" = "none" ]; then
+        if [ "${1}" = "on" ]; then
+            systemctl enable fstrim.timer
+        else
+            systemctl disable fstrim.timer
+        fi
+    fi
+}
+
+swappinesschroot(){
+    echo "Change swappiness >> 10" 
+    echo "vm.swappiness=10" |sudo tee -a /etc/sysctl.d/99-swappiness.conf
+}
 
 archmenu(){
 	if [ "${1}" = "" ]; then
@@ -425,103 +767,196 @@ archmenu(){
     options+=("${txtsethostname}" "/etc/hostname")	
 	options+=("${txtgenlocale}" "/etc/locale.gen")
 	options+=("${txtsettime}" "/etc/localtime")
+
+    options+=("${txtsetrootpassword}" "${ROOT_PASSWORD}")
+    options+=("${txtadduser}" "User:${USER_NAME} Password:${USER_PASSWORD}")  
+
+    options+=("${txtbootloader}" "")
+
+    options+=("" "")
+
+    options+=("${txtinstallextrapkgs}" "")
+    options+=("${txtdrivers}" "")
+    options+=("${txtinstallmediacodecs}" "")
+    options+=("${txtinstallfonts}" "")
+    options+=("${txtswitchssdtrim}" "$ISSSDTRIM")
+
+    options+=("${txtinstallkde}" "")
+
+    options+=("${txtswappiness}" "")
+
+    
+    
+    
     
     options+=("" "")    
-    options+=("${txtunmount}" "")    
+    options+=("${txtunmount}" "")
+    options+=("${txtreboot}" "")
     
 	sel=$(whiptail --backtitle "${apptitle}" --title "Select to Run" --menu "" --cancel-button "cancle" --default-item "${nextitem}" 0 0 0 \
 		"${options[@]}" \
 		3>&1 1>&2 2>&3)
 		
     if [ "$?" = "0" ]; then
-        echo "Pre-Install"
-        preinstalll
+       
 		case ${sel} in
-            "${txtselectmirrors}")	
+            "${txtselectmirrors}")
+                clear	
 				select_mirrors
-				pressanykey
-				nextitem="${txtselectmirrors}"
-				;;
-            "${txtselectdevice}")	
-				select_device
-                lsblk
 				pressanykey
 				nextitem="${txtselectdevice}"
 				;;
-            "${txtinitdevice}")	
-				init_device
+            "${txtselectdevice}")
+                clear
+				select_device
                 lsblk
 				pressanykey
 				nextitem="${txtinitdevice}"
-				;;  
-            "${txtpartiondevice}")	
-				partionsdevice
+				;;
+            "${txtinitdevice}")	
+                clear
+				init_device
                 lsblk
 				pressanykey
 				nextitem="${txtpartiondevice}"
 				;;  
-            
-
-                       
-
-            "${txtselectpartion}")	
-				select_partion
+            "${txtpartiondevice}")	
+                clear
+				partionsdevice
                 lsblk
 				pressanykey
 				nextitem="${txtselectpartion}"
 				;;
-            "${txtformatparts}")	
-				formatparts
+            "${txtselectpartion}")	
+                clear
+				select_partion
                 lsblk
 				pressanykey
 				nextitem="${txtformatparts}"
+				;;
+            "${txtformatparts}")
+                clear	
+				formatparts
+                lsblk
+				pressanykey
+				nextitem="${txtinstallbasepkg}"
 				;; 
             
             "${txtinstallbasepkg}")
+                clear
                 install_basepkg
-                pressanykey
-                nextitem="${txtinstallbasepkg}"
-                ;;
-
-            "${txtgenfstab}")
-                gen_fstab
                 pressanykey
                 nextitem="${txtgenfstab}"
                 ;;
-            "${txtmakeswap}")
-                makeswap
+
+            "${txtgenfstab}")
+                clear
+                gen_fstab
                 pressanykey
                 nextitem="${txtmakeswap}"
                 ;;
+            "${txtmakeswap}")
+                clear
+                makeswap
+                pressanykey
+                nextitem="${txtsethostname}"
+                ;;
 
             "${txtsethostname}")
+                clear
 				archsethostname
                 pressanykey
-				nextitem="${txtsetkeymap}"
+				nextitem="${txtgenlocale}"
 			;;
 		
 			"${txtgenlocale}")
+                clear
 				archgenlocale
                 pressanykey
 				nextitem="${txtsettime}"
 			;;
 			
 			"${txtsettime}")
+                clear
 				archchroot settime
                 pressanykey
 				nextitem="${txtsetrootpassword}"
 			;;
+            "${txtsetrootpassword}")
+                clear
+				setrootpasswd
+                pressanykey
+				nextitem="${txtadduser}"
+			;;
+            "${txtadduser}")
+                clear
+				adduser
+                pressanykey
+				nextitem="${txtbootloader}"
+			;;
+            "${txtbootloader}")
+                clear
+				archchroot setbootloader
+                pressanykey
+				nextitem="${txtinstallextrapkgs}"
+			;;
 
+            "${txtinstallextrapkgs}")
+                clear
+				installextrapkgs
+                pressanykey
+				nextitem="${txtdrivers}"
+			;;
+            
+            "${txtdrivers}")
+                clear
+				installdrivers
+                pressanykey
+				nextitem="${txtinstallmediacodecs}"
+			;;
+            
+            "${txtinstallmediacodecs}")
+                clear
+				installmediacodecs
+                pressanykey
+				nextitem="${txtinstallfonts}"
+			;;
 
+            "${txtinstallfonts}")
+                clear
+				installfonts
+                pressanykey
+				nextitem="${txtswitchssdtrim}"
+			;;
+            "${txtswitchssdtrim}")
+                clear
+				switchssdtrim
+                pressanykey
+				nextitem="${txtinstallkde}"
+			;; 
+            "${txtinstallkde}")
+                clear
+				installkde
+                pressanykey
+				nextitem="${txtswappiness}"
+			;; 
+            "${txtswappiness}")
+                clear
+				archchroot swappiness
+                pressanykey
+				nextitem="${txtunmount}"
+			;; 
+            
 
             "${txtunmount}")
                 unmountdevices
                 pressanykey
-                nextitem="${txtunmount}"
+                nextitem="${txtreboot}"
                 ;;
-
-            
-                
+            "${txtreboot}")
+                reboot
+                ;;          
+             
 		esac
 		archmenu "${nextitem}"
 	fi
@@ -531,16 +966,28 @@ while (( "$#" )); do
 	case ${1} in		
 		--chroot) chroot=1
 							command=${2}
-							args=${3};;
+							arg1=${3}
+                            arg2=${4};;
 	esac
 	shift
 done
 
 if [ "${chroot}" = "1" ]; then
 	case ${command} in
-        'makeswap') archsetswap ${args};;
+        'makeswap') archsetswap ${arg1};;
         'genlocale') archgenlocalechroot;;
         'settime') archsettimechroot;;
+        'setrootpasswd') archsetrootpasswdchroot ${arg1};;
+        'adduser') archadduserchroot ${arg1} ${arg2};;
+        'setbootloader') setbootloaderchroot;;
+        'installextrapkgs') installextrapkgschroot ${arg1};;
+        'installdrivers') installdriverschroot ${arg1};;
+        'installmediacodecs') installpkgchroot ${arg1};;
+        'installfonts') installpkgchroot ${arg1};;
+        'switchssdtrim') switchssdtrimchroot ${arg1};;
+        'installkde') installkdechroot ${arg1};;
+        'swappiness') swappinesschroot;;
+        
 		# 'setrootpassword') archsetrootpasswordchroot;;
 		# 'genlocale') archgenlocalechroot;;
 		# 'settimeutc') archsettimeutcchroot;;
@@ -561,6 +1008,8 @@ if [ "${chroot}" = "1" ]; then
 	esac
 else
 	loadstrings
+    echo "Pre-Install"
+    preinstalll
 	archmenu
 fi
 
