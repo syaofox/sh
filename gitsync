@@ -1,0 +1,99 @@
+#!/bin/bash
+
+txtpressanykey="Press any key to continue."
+txttypora_notes="txttypora_notes"
+txtsh="sh"
+txtsyaofox="syaofox.github.io"
+txtall="all"
+
+pressanykey(){
+	read -n1 -p "${txtpressanykey}"
+}
+
+deplpy(){
+	#set -e
+	git pull
+
+	echo 'push to github'
+	#git init
+	git add -A
+
+	# Commit changes.
+	msg="sync `date`"
+	if [ $# -eq 1 ]
+	then msg="$1"
+	fi
+	git commit -m "$msg"
+
+	git push 
+}
+
+synctyporanotes(){
+	echo "[info]syncing typora_notes"
+	cd /home/syaofox/Github/typora_notes
+	deplpy
+}
+
+syncsh(){
+	echo "[info]syncing sh"
+	cd /home/syaofox/Github/sh
+	deplpy
+}
+
+syncsyaofox(){
+	echo "[info]syncing syaofox.github.io"
+	cd /home/syaofox/Github/syaofox.github.io
+	git submodule update
+	deplpy
+}
+
+syncall(){
+	synctyporanotes
+	syncsh
+	#syncsyaofox
+}
+
+archmenu(){
+	if [ "${1}" = "" ]; then
+		nextitem="."
+	else
+		nextitem=${1}
+	fi
+	options=()
+	options+=(${txttypora_notes} "")
+	options+=(${txtsh} "")
+	options+=(${txtsyaofox} "")
+	options+=("" "")
+	options+=(${txtall} "")
+	sel=$(whiptail --backtitle "gitsync" --title "Select to Sync" --menu "" --cancel-button "cancle" --default-item "${nextitem}" 0 0 0 \
+		"${options[@]}" \
+		3>&1 1>&2 2>&3)
+		
+    if [ "$?" = "0" ]; then
+		case ${sel} in
+            ${txttypora_notes})				
+				synctyporanotes
+				pressanykey
+				nextitem="${txttypora_notes}"
+				;;
+			${txtsh})				
+				syncsh
+				pressanykey
+				nextitem="${txtsh}"
+				;;
+			${txtsyaofox})				
+				syncsyaofox
+				pressanykey
+				nextitem="${txtsyaofox}"
+				;;
+			${txtall})
+				syncall
+				pressanykey
+				nextitem="${txtall}"
+				;;
+		esac
+		archmenu "${nextitem}"
+	fi
+}
+
+archmenu

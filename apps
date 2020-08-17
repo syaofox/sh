@@ -1,0 +1,76 @@
+#!/bin/bash
+
+txtcomiccrawler="ComicCrawler"
+txtyoutubedl="Youtube-dl"
+txtyouget="Youget"
+
+pressanykey(){
+    echo "Press any key to continue..."
+	read -n1 -p "${txtpressanykey}"
+}
+
+youtubedl(){
+	URL=$(whiptail --inputbox "Url?" 8 39  --title "${txtyoutubedl}" 3>&1 1>&2 2>&3)
+	exitstatus=$?
+	if [ $exitstatus = 0 ]; then
+		cd /home/syaofox/downloads
+		youtube-dl --write-sub --sub-lang en,zh-CN,zh-TW --sub-format srt  --format "bestvideo+bestaudio[ext=m4a]/bestvideo+bestaudio/best" --merge-output-format mp4 --external-downloader aria2c --external-downloader-args "-x 16 -k 1M" ${URL}
+		echo "Downloading: " $URL
+	else
+		echo "User selected Cancel."
+	fi
+
+
+}
+
+yougetdown(){
+	URL=$(whiptail --inputbox "Url?" 8 39  --title "${txtyouget}" 3>&1 1>&2 2>&3)
+	exitstatus=$?
+	if [ $exitstatus = 0 ]; then
+		cd /home/syaofox/downloads
+		you-get ${URL}
+		echo "Downloading: " $URL
+	else
+		echo "User selected Cancel."
+	fi
+}
+
+archmenu(){
+	if [ "${1}" = "" ]; then
+		nextitem="."
+	else
+		nextitem=${1}
+	fi
+	options=()
+	options+=(${txtcomiccrawler} "")
+	options+=(${txtyoutubedl} "")
+	options+=(${txtyouget} "")
+
+	sel=$(whiptail --backtitle "Applications" --title "Select to launch" --menu "" --cancel-button "cancle" --default-item "${nextitem}" 0 0 0 \
+		"${options[@]}" \
+		3>&1 1>&2 2>&3)
+		
+    if [ "$?" = "0" ]; then
+		case ${sel} in
+            ${txtcomiccrawler})				
+				comiccrawler gui
+                clear
+				pressanykey
+				nextitem="${txtcomiccrawler}"
+				;;
+			${txtyoutubedl})
+				youtubedl
+				pressanykey
+				nextitem="${txtyoutubedl}"
+				;;
+			${txtyouget})
+				yougetdown
+				pressanykey
+				nextitem="${txtyouget}"
+				;;				
+		esac
+		archmenu "${nextitem}"
+	fi
+}
+
+archmenu
