@@ -697,7 +697,7 @@ installkde(){
 
     pkgs="$(echo $pkgs | sed 's/\s/_/g')"
 
-	archchroot installkde "${pkgs}"
+	archchroot installkde "${pkgs}" "${USER_NAME}"
 
 }
 
@@ -713,6 +713,13 @@ installkdechroot(){
             systemctl enable sddm
         fi
     fi
+
+    # fix konsole
+    if [ ! "${2}" = "none" ]; then 
+        mkdir /home/${2}/.local/share/kglobalaccel
+
+    fi  
+   
 }
 
 installpkgchroot(){
@@ -990,7 +997,7 @@ if [ "${chroot}" = "1" ]; then
         'installmediacodecs') installpkgchroot ${arg1};;
         'installfonts') installpkgchroot ${arg1};;
         'switchssdtrim') switchssdtrimchroot ${arg1};;
-        'installkde') installkdechroot ${arg1};;
+        'installkde') installkdechroot ${arg1} ${arg2};;
         'swappiness') swappinesschroot;;
         
 		# 'setrootpassword') archsetrootpasswordchroot;;
