@@ -712,11 +712,11 @@ installkdechroot(){
         fi
     fi
 
-    # fix konsole
-    if [ ! "${2}" = "none" ]; then 
-        mkdir /home/${2}/.local/share/kglobalaccel
+    # # fix konsole
+    # if [ ! "${2}" = "none" ]; then 
+    #     mkdir /home/${2}/.local/share/kglobalaccel
 
-    fi  
+    # fi  
    
 }
 
