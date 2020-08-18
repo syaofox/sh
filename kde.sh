@@ -15,6 +15,7 @@ loadstrings() {
     USER_NAME="syaofox"
     USER_PASSWORD="0928"
     ISSSDTRIM="off"
+    HOSTNAME="arch-nuc"
 
     # COLORS {{{
         Bold=$(tput bold)
@@ -64,6 +65,7 @@ loadstrings() {
 	txtsetlocale="Set Locale"
 	txtgenlocale="Gen Locale"
 	txtsettime="Set Time"
+    txthosts="Set Hosts"
 
     txtsetrootpassword="Set Rootpasswd"
     txtadduser="Add user"
@@ -78,6 +80,9 @@ loadstrings() {
     txtinstallkde="Install KDE"
 
     txtswappiness="Set Swappiness"
+
+    txtinstallyay="Install yay"
+    txtconfigSmbShare="Config Samba Share"
 
     txtunmount="Unmount"
     txtreboot="Reboot"
@@ -335,11 +340,11 @@ archsetswap(){
 }
 
 archsethostname(){
-	hostname=$(whiptail --backtitle "${apptitle}" --title "${txtsethostname}" --inputbox "" 0 0 "archlinux" 3>&1 1>&2 2>&3)
+	HOSTNAME=$(whiptail --backtitle "${apptitle}" --title "${txtsethostname}" --inputbox "" 0 0 $HOSTNAME 3>&1 1>&2 2>&3)
 	if [ "$?" = "0" ]; then
 		clear
-		echo "echo \"${hostname}\" > /mnt/etc/hostname"
-		echo "${hostname}" > /mnt/etc/hostname
+		echo "echo \"${HOSTNAME}\" > /mnt/etc/hostname"
+		echo "${HOSTNAME}" > /mnt/etc/hostname
         cat  /mnt/etc/hostname
 		
 	fi
@@ -527,9 +532,9 @@ installdrivers(){
     options=()   
       
 	options+=("xorg" "(${txtoptional})" on)
-    options+=("xorg-xinit" "(${txtoptional})" on)
-    options+=("xorg-server" "(${txtoptional})" on)
-    options+=("mesa" "(${txtoptional})" on)
+    options+=("xorg-xinit" "(${txtoptional})" off)
+    options+=("xorg-server" "(${txtoptional})" off)
+    
 
     options+=("networkmanager" "(${txtoptional})" on)
     options+=("pulseaudio" "(${txtoptional})" on)
@@ -543,6 +548,7 @@ installdrivers(){
     options+=("xf86-video-amdgpu" "(${txtoptional})" on)
     options+=("libva-mesa-driver " "(${txtoptional})" on)
     options+=("vulkan-radeon" "(${txtoptional})" on)
+    options+=("mesa" "(${txtoptional})" on)
 
     options+=("xf86-input-libinput" "(${txtoptional})" on)
 
@@ -753,6 +759,59 @@ swappinesschroot(){
     echo "vm.swappiness=10" |sudo tee -a /etc/sysctl.d/99-swappiness.conf
 }
 
+installyay(){
+    archchroot installyay $USER_NAME
+}
+
+installyaychroot(){
+    if [ ! "${1}" = "none" ]; then
+        cd /home/${1}
+        sudo -u ${1} git clone https://aur.archlinux.org/yay.git
+        cd yay
+        sudo -u ${1} makepkg -si
+    fi
+}
+
+configSmbShare(){
+    archchroot configSmbShare $USER_NAME
+}
+
+configSmbSharechroot(){
+    if [ ! "${1}" = "none" ]; then
+        mkdir -p /media/smb
+        chown -R ${1} /media/smb
+
+        sudo -u ${1} mkdir -p /media/smb/omvnas/me
+        sudo -u ${1} mkdir -p /media/smb/omvnas/kid
+        sudo -u ${1} mkdir -p /media/smb/omvnas/share
+        sudo -u ${1} mkdir -p /media/smb/openwrt/share
+
+        echo '10.10.10.1	openwrt' | tee -a /etc/hosts
+        echo '10.10.10.3	omvnas' | tee -a /etc/hosts
+        
+
+        echo '//omvnas/share /media/smb/omvnas/share cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' | tee -a /etc/fstab
+        echo '//omvnas/me /media/smb/omvnas/me cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' | tee -a /etc/fstab
+        echo '//omvnas/kid /media/smb/omvnas/kid cifs  username=me,password=0928,vers=3.0,noauto,user 0 0' | tee -a /etc/fstab
+        echo '//openwrt/share /media/smb/openwrt/share cifs  username=root,password=0928,vers=2.0,noauto,user 0 0' | tee -a /etc/fstab
+
+        
+    
+    fi
+}
+
+sethosts(){
+    archchroot sethosts ${HOSTNAME}
+}
+
+sethostschroot(){
+    echo '127.0.0.1  localhost' | tee -a /etc/hosts
+    echo '::1        localhost' | tee -a /etc/hosts
+    echo '127.0.1.1    '${1}'.localdomain '${1} | tee -a /etc/hosts
+    cat /etc/hosts
+
+}
+
 archmenu(){
 	if [ "${1}" = "" ]; then
 		nextitem="."
@@ -777,6 +836,7 @@ archmenu(){
     options+=("${txtsethostname}" "/etc/hostname")	
 	options+=("${txtgenlocale}" "/etc/locale.gen")
 	options+=("${txtsettime}" "/etc/localtime")
+    options+=("${txthosts}" "/etc/hosts")
 
     options+=("${txtsetrootpassword}" "${ROOT_PASSWORD}")
     options+=("${txtadduser}" "User:${USER_NAME} Password:${USER_PASSWORD}")  
@@ -794,8 +854,8 @@ archmenu(){
     options+=("${txtinstallkde}" "")
 
     options+=("${txtswappiness}" "")
-
-    
+    options+=("${txtinstallyay}" "")
+    options+=("${txtconfigSmbShare}" "")
     
     
     
@@ -883,8 +943,16 @@ archmenu(){
                 clear
 				archgenlocale
                 pressanykey
+				nextitem="${txthosts}"
+			;;
+
+            "${txthosts}")
+                clear
+				sethosts
+                pressanykey
 				nextitem="${txtsettime}"
 			;;
+            
 			
 			"${txtsettime}")
                 clear
@@ -954,6 +1022,19 @@ archmenu(){
                 clear
 				archchroot swappiness
                 pressanykey
+				nextitem="${txtinstallyay}"
+			;; 
+            "${txtinstallyay}")
+                clear
+				installyay
+                pressanykey
+				nextitem="${txtconfigSmbShare}"
+			;; 
+            
+            "${txtconfigSmbShare}")
+                clear				
+                configSmbShare
+                pressanykey
 				nextitem="${txtunmount}"
 			;; 
             
@@ -987,6 +1068,7 @@ if [ "${chroot}" = "1" ]; then
         'makeswap') archsetswap ${arg1};;
         'genlocale') archgenlocalechroot;;
         'settime') archsettimechroot;;
+        'sethosts') sethostschroot ${arg1};;
         'setrootpasswd') archsetrootpasswdchroot ${arg1};;
         'adduser') archadduserchroot ${arg1} ${arg2};;
         'setbootloader') setbootloaderchroot;;
@@ -997,6 +1079,9 @@ if [ "${chroot}" = "1" ]; then
         'switchssdtrim') switchssdtrimchroot ${arg1};;
         'installkde') installkdechroot ${arg1} ${arg2};;
         'swappiness') swappinesschroot;;
+        'installyay') installyaychroot ${arg1};;
+        'configSmbShare') configSmbSharechroot ${arg1};;
+        
         
 		# 'setrootpassword') archsetrootpasswordchroot;;
 		# 'genlocale') archgenlocalechroot;;
