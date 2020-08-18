@@ -674,6 +674,8 @@ installkde(){
     options=()   
       
 	options+=("plasma-desktop" "" on)
+    options+=("kde-gtk-config" "" on)
+    options+=("breeze-gtk" "" on)    
     options+=("plasma-nm" "" on)
     options+=("plasma-pa" "" on)
 
