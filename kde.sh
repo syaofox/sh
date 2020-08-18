@@ -875,6 +875,9 @@ installsoftware(){
     options+=("visual-studio-code" "(${txtoptional})" on)
     options+=("vmware" "(${txtoptional})" off)
     
+    options+=("evolution" "mail(${txtoptional})" off)
+    options+=("celluloid" "multimedia(${txtoptional})" off)
+    options+=("libreoffice" "(${txtoptional})" off)
     
 
     sel=$(whiptail --backtitle "${apptitle}" --title "${txtdrivers}" --checklist "" 0 0 0 \
@@ -952,7 +955,22 @@ installsoftwarechroot(){
             echo 'mks.gl.allowBlacklistedDrivers = "TRUE"' >> /home/${2}/.vmware/preferences
         fi
         
+        if [[ "${1}" == *"evolution"* ]]; then	
+            pacman -S --needed --noconfirm evolution
 
+        fi
+
+        if [[ "${1}" == *"celluloid"* ]]; then	
+            pacman -S --needed --noconfirm celluloid
+
+        fi
+        
+        if [[ "${1}" == *"libreoffice"* ]]; then	
+            cd /home/${2}
+            sudo -u ${2} yay -S --needed libreoffice-fresh
+
+        fi
+        
 
     fi
 }
