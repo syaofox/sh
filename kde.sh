@@ -589,11 +589,15 @@ installdriverschroot(){
         echo "Install:"${pkgs}
         pacman -S --needed --noconfirm  ${pkgs}
 
-        if [[ "${pkgs}" == *"networkmanager"* ]]; then		
+        if [[ "${pkgs}" == *"networkmanager"* ]]; then	
+            print_line
+            echo "networkmanager"	
             systemctl enable NetworkManager
         fi
 
-        if [[ "${pkgs}" == *"bluez"* ]]; then		
+        if [[ "${pkgs}" == *"bluez"* ]]; then	
+             print_line
+            echo "bluetooth"		
             systemctl enable bluetooth
         fi      
        
@@ -858,8 +862,11 @@ installsoftware(){
 	options+=("fcitx5" "(${txtoptional})" on)
     options+=("dropbox" "(${txtoptional})" on)
     options+=("transmission-remote-gtk" "(${txtoptional})" on)
-    
-
+    options+=("google-chrome" "(${txtoptional})" on)
+    options+=("firefox" "(${txtoptional})" off)
+    options+=("typora" "(${txtoptional})" on)
+    options+=("visual-studio-code" "(${txtoptional})" on)
+    options+=("vmware" "(${txtoptional})" on)
     
     
 
@@ -903,7 +910,42 @@ installsoftwarechroot(){
             sudo -u ${2} yay -S --needed transmission-remote-gtk
 
         fi
-       
+
+        if [[ "${1}" == *"google-chrome"* ]]; then	
+            cd /home/${2}
+            sudo -u ${2} yay -S --needed google-chrome
+
+        fi
+
+        if [[ "${1}" == *"firefox"* ]]; then	
+            cd /home/${2}
+            pacman -S --needed --noconfirm firefox
+
+        fi
+
+        if [[ "${1}" == *"typora"* ]]; then	
+            cd /home/${2}
+            sudo -u ${2} yay -S --needed typora
+
+        fi
+
+        if [[ "${1}" == *"visual-studio-code"* ]]; then	
+            cd /home/${2}
+            sudo -u ${2} yay -S --needed visual-studio-code-bin
+
+        fi
+
+        if [[ "${1}" == *"vmware"* ]]; then	
+            cd /home/${2}
+            pacman -S --needed --noconfirm fuse2 gtkmm linux-headers libcanberra pcsclite
+            sudo -u ${2} yay -S ncurses5-compat-libs
+            sudo -u ${2} yay -S vmware-workstation
+            systemctl enable vmware-networks.service
+            modprobe -a vmw_vmci vmmon
+            echo 'mks.gl.allowBlacklistedDrivers = "TRUE"' >> /home/${2}/.vmware/preferences
+        fi
+        
+
 
     fi
 }
