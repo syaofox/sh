@@ -83,11 +83,15 @@ loadstrings() {
 
     txtswappiness="Set Swappiness"
 
-    txtinstallyay="Install yay"
+    
     txtconfigSmbShare="Config Samba Share"
     txtfixkonsoleshortcut="Fix konsole Luncher Shortcut"
-
     txtfixcjk="Fix CJK fonts order"
+
+    txtarchlinuxcn="Setting Archlinuxcn && yay"
+    txtinstallyay="Install yay"
+    txtaddarchlinuxcn="Add Archlinuxcn"
+    txtfixkeyring="Fix Keyring"
 
     txtinstallsoftware="Install Software"
 
@@ -1106,6 +1110,63 @@ basemenu(){
     fi
 }
 
+addarchlinuxcnchroot(){
+    echo "Configing Archlinuxcn"
+    echo "[archlinuxcn]" | tee -a /etc/pacman.conf
+    echo "Server = https://mirrors.bfsu.edu.cn/archlinuxcn/\$arch" | tee -a /etc/pacman.conf
+    pacman -Syy --noconfirm
+    pacman -S archlinuxcn-keyring --noconfirm
+    pacman -S pacman-key --populate archlinuxcn --noconfirm
+    pacman -Syyy --noconfirm
+}
+
+fixkeyringchroot(){
+    rm -rf /etc/pacman.d/gnupg
+    pacman-key --init
+    pacman-key --populate archlinux
+    pacman -Syyy --noconfirm
+}
+
+archlinuxcnmenu(){
+    if [ "${1}" = "" ]; then
+		nextitem="."
+	else
+		nextitem=${1}
+	fi  
+
+    options=()
+    options+=("${txtinstallyay}" "")
+	options+=("${txtaddarchlinuxcn}" "")
+    options+=("${txtfixkeyring}" "")
+
+    sel=$(whiptail --backtitle "${apptitle}" --title "Select to Run" --menu "" --cancel-button "cancle" --default-item "${nextitem}" 0 0 0 \
+		"${options[@]}" \
+		3>&1 1>&2 2>&3)
+    if [ "$?" = "0" ]; then
+       case ${sel} in
+
+            "${txtinstallyay}")
+                clear
+				installyay
+                pressanykey
+				nextitem="${txtinstallyay}"
+			;; 
+
+            "${txtaddarchlinuxcn}")
+                archchroot addarchlinuxcn
+                pressanykey
+				nextitem="${txtaddarchlinuxcn}"
+			;;
+            "${txtfixkeyring}")
+                archchroot fixkeyring
+                pressanykey
+				nextitem="${txtfixkeyring}"
+			;;
+        esac
+		archlinuxcnmenu "${nextitem}"
+    fi
+}
+
 desktopmenu(){
     if [ "${1}" = "" ]; then
 		nextitem="."
@@ -1123,10 +1184,12 @@ desktopmenu(){
     options+=("${txtinstallkde}" "")
 
     options+=("${txtswappiness}" "")
-    options+=("${txtinstallyay}" "")
+    # options+=("${txtinstallyay}" "")
     options+=("${txtconfigSmbShare}" "")
     options+=("${txtfixkonsoleshortcut}" "")
     options+=("${txtfixcjk}" "")
+    options+=("${txtarchlinuxcn}" "")
+    
 
     options+=("${txtinstallsoftware}" "")
     
@@ -1180,14 +1243,14 @@ desktopmenu(){
                 clear
 				archchroot swappiness
                 pressanykey
-				nextitem="${txtinstallyay}"
-			;; 
-            "${txtinstallyay}")
-                clear
-				installyay
-                pressanykey
 				nextitem="${txtconfigSmbShare}"
 			;; 
+            # "${txtinstallyay}")
+            #     clear
+			# 	installyay
+            #     pressanykey
+			# 	nextitem="${txtconfigSmbShare}"
+			# ;; 
             
             "${txtconfigSmbShare}")
                 clear				
@@ -1204,11 +1267,19 @@ desktopmenu(){
 			;; 
 
             "${txtfixcjk}")
-                clear				
-                archchroot fixcjk
+                clear
+                archchroot fixcjk				
                 pressanykey
+				nextitem="${txtarchlinuxcn}"
+			;; 
+
+            "${txtarchlinuxcn}")
+                clear				
+                archlinuxcnmenu                
 				nextitem="${txtinstallsoftware}"
 			;; 
+
+            
             "${txtinstallsoftware}")
                 clear				
                 installsoftware
@@ -1316,6 +1387,10 @@ if [ "${chroot}" = "1" ]; then
         'fixkonsoleshortcut') fixkonsoleshortcutchroot ${arg1};;
         'fixcjk') fixcjkchroot;;
         'installsoftware') installsoftwarechroot ${arg1} ${arg2};;
+        
+        'addarchlinuxcn') addarchlinuxcnchroot;;
+        'fixkeyring') fixkeyringchroot;;
+        
         
 	esac
 else
