@@ -693,7 +693,7 @@ installkde(){
     options+=("inkscape" "(${txtoptional})" on)
     options+=("ark" "(${txtoptional})" on)
     options+=("kinfocenter" "(${txtoptional})" on)
-    options+=("kwalletmanager" "(${txtoptional})" on)
+    # options+=("kwalletmanager" "(${txtoptional})" on)
     options+=("gwenview" "(${txtoptional})" on)
     options+=("kipi-plugins" "(${txtoptional})" on)
     options+=("spectacle" "(${txtoptional})" on)
