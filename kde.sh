@@ -414,8 +414,9 @@ archsettimechroot(){
     print_info "In an operating system the time (clock) is determined by four parts: Time value, Time standard, Time Zone, and DST (Daylight Saving Time if applicable)."
 
     ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime
-    systemctl enable systemd-timesyncd.service
-    hwclock --systohc --utc
+    #systemctl enable systemd-timesyncd.service
+    # hwclock --systohc --utc
+    hwclock --systohc
     exit
 }
 
@@ -866,7 +867,7 @@ installsoftware(){
     options+=("firefox" "(${txtoptional})" off)
     options+=("typora" "(${txtoptional})" on)
     options+=("visual-studio-code" "(${txtoptional})" on)
-    options+=("vmware" "(${txtoptional})" on)
+    options+=("vmware" "(${txtoptional})" off)
     
     
 
