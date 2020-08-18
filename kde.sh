@@ -36,6 +36,8 @@ loadstrings() {
     txtpressanykey="Press any key to continue."
     txtoptional="Optional"
 
+    txtbaseinstall="Base Install"
+    txtdeskinstall="Desktop Install"
     txtselectmirrors="Select Mirrors"
     txtselectdevice="Select Device"
 
@@ -83,6 +85,11 @@ loadstrings() {
 
     txtinstallyay="Install yay"
     txtconfigSmbShare="Config Samba Share"
+    txtfixkonsoleshortcut="Fix konsole Luncher Shortcut"
+
+    txtfixcjk="Fix CJK fonts order"
+
+    txtinstallsoftware="Install Software"
 
     txtunmount="Unmount"
     txtreboot="Reboot"
@@ -805,21 +812,112 @@ sethosts(){
 }
 
 sethostschroot(){
-    echo '127.0.0.1  localhost' | tee -a /etc/hosts
-    echo '::1        localhost' | tee -a /etc/hosts
-    echo '127.0.1.1    '${1}'.localdomain '${1} | tee -a /etc/hosts
-    cat /etc/hosts
+    if [ ! "${1}" = "none" ]; then
+        echo '127.0.0.1  localhost' | tee -a /etc/hosts
+        echo '::1        localhost' | tee -a /etc/hosts
+        echo '127.0.1.1    '${1}'.localdomain '${1} | tee -a /etc/hosts
+        cat /etc/hosts
+    fi
 
 }
 
-archmenu(){
-	if [ "${1}" = "" ]; then
+fixkonsoleshortcutchroot(){
+    if [ ! "${1}" = "none" ]; then
+        sudo -u ${1} mkdir -p /home/${1}/.local/share/kglobalaccel
+    fi
+}
+
+fixcjkchroot(){
+    echo '<?xml version="1.0"?>' > /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '<!DOCTYPE fontconfig SYSTEM "fonts.dtd">' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '<fontconfig>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '  <alias>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '    <family>sans-serif</family>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '    <prefer>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '      <family>Noto Sans CJK SC</family>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '      <family>Noto Sans CJK TC</family>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '      <family>Noto Sans CJK JP</family>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '    </prefer>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '  </alias>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '  <alias>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '    <family>monospace</family>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '    <prefer>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '      <family>Noto Sans Mono CJK SC</family>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '      <family>Noto Sans Mono CJK TC</family>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '      <family>Noto Sans Mono CJK JP</family>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '    </prefer>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '  </alias>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    echo '</fontconfig>' >> /etc/fonts/conf.d/64-language-selector-prefer.conf
+    cat /etc/fonts/conf.d/64-language-selector-prefer.conf
+}
+
+installsoftware(){
+    pkgs=""
+    options=()   
+      
+	options+=("fcitx5" "(${txtoptional})" on)
+    options+=("dropbox" "(${txtoptional})" on)
+    options+=("transmission-remote-gtk" "(${txtoptional})" on)
+    
+
+    
+    
+
+    sel=$(whiptail --backtitle "${apptitle}" --title "${txtdrivers}" --checklist "" 0 0 0 \
+		"${options[@]}" \
+		3>&1 1>&2 2>&3)
+	if [ ! "$?" = "0" ]; then
+		return 1
+	fi
+	for itm in $sel; do
+		pkgs="$pkgs $(echo $itm | sed 's/"//g')"
+	done
+
+    pkgs="$(echo $pkgs | sed 's/\s/_/g')"
+
+	archchroot installsoftware "${pkgs}" $USER_NAME
+}
+
+installsoftwarechroot(){
+    if [ ! "${1}" = "none" ] &&  [ ! "${2}" = "none" ]; then
+        clear
+        if [[ "${1}" == *"fcitx5"* ]]; then		
+            print_line 
+            sudo -u ${2} yay -S --needed fictx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
+            sudo -u ${2} echo "export GTK_IM_MODULE=fcitx5" >> /home/${2}/.xprofile
+            sudo -u ${2} echo "export XMODIFIERS=@im=fcitx5" >> /home/${2}/.xprofile
+            sudo -u ${2} echo "export QT_IM_MODULE=fcitx5" >> /home/${2}/.xprofile
+            sudo -u ${2} echo "fcitx5 &" >> /home/${2}/.xprofile
+        fi
+
+        if [[ "${1}" == *"dropbox"* ]]; then	
+            cd /home/${2}
+            sudo -u ${2} curl -L https://linux.dropbox.com/fedora/rpm-public-key.asc > rpm-public-key.asc
+            sudo -u ${2} gpg --import rpm-public-key.asc
+            sudo -u ${2} yay -S --needed dropbox
+
+        fi      
+
+        if [[ "${1}" == *"transmission-remote-gtk"* ]]; then	
+            cd /home/${2}
+            sudo -u ${2} yay -S --needed transmission-remote-gtk
+
+        fi
+       
+
+    fi
+}
+
+
+basemenu(){
+
+    if [ "${1}" = "" ]; then
 		nextitem="."
 	else
 		nextitem=${1}
 	fi    
 
-	options=()
+    options=()
 	options+=("${txtselectmirrors}" "${MIRRORS_SELECTED}")
 
     options+=("${txtselectdevice}" "${INSTALL_DEVICE}")
@@ -843,33 +941,12 @@ archmenu(){
 
     options+=("${txtbootloader}" "")
 
-    options+=("" "")
-
-    options+=("${txtinstallextrapkgs}" "")
-    options+=("${txtdrivers}" "")
-    options+=("${txtinstallmediacodecs}" "")
-    options+=("${txtinstallfonts}" "")
-    options+=("${txtswitchssdtrim}" "$ISSSDTRIM")
-
-    options+=("${txtinstallkde}" "")
-
-    options+=("${txtswappiness}" "")
-    options+=("${txtinstallyay}" "")
-    options+=("${txtconfigSmbShare}" "")
-    
-    
-    
-    options+=("" "")    
-    options+=("${txtunmount}" "")
-    options+=("${txtreboot}" "")
-    
-	sel=$(whiptail --backtitle "${apptitle}" --title "Select to Run" --menu "" --cancel-button "cancle" --default-item "${nextitem}" 0 0 0 \
+    sel=$(whiptail --backtitle "${apptitle}" --title "Select to Run" --menu "" --cancel-button "cancle" --default-item "${nextitem}" 0 0 0 \
 		"${options[@]}" \
 		3>&1 1>&2 2>&3)
 		
     if [ "$?" = "0" ]; then
-       
-		case ${sel} in
+       case ${sel} in
             "${txtselectmirrors}")
                 clear	
 				select_mirrors
@@ -943,6 +1020,16 @@ archmenu(){
                 clear
 				archgenlocale
                 pressanykey
+				nextitem="${txtsettime}"
+			;;
+
+            
+            
+			
+			"${txtsettime}")
+                clear
+				archchroot settime
+                pressanykey
 				nextitem="${txthosts}"
 			;;
 
@@ -950,16 +1037,9 @@ archmenu(){
                 clear
 				sethosts
                 pressanykey
-				nextitem="${txtsettime}"
-			;;
-            
-			
-			"${txtsettime}")
-                clear
-				archchroot settime
-                pressanykey
 				nextitem="${txtsetrootpassword}"
 			;;
+
             "${txtsetrootpassword}")
                 clear
 				setrootpasswd
@@ -976,10 +1056,45 @@ archmenu(){
                 clear
 				archchroot setbootloader
                 pressanykey
-				nextitem="${txtinstallextrapkgs}"
+				nextitem="${txtbootloader}"
 			;;
+        esac
+		basemenu "${nextitem}"
+    fi
+}
 
-            "${txtinstallextrapkgs}")
+desktopmenu(){
+    if [ "${1}" = "" ]; then
+		nextitem="."
+	else
+		nextitem=${1}
+	fi    
+
+    options=()
+	options+=("${txtinstallextrapkgs}" "")
+    options+=("${txtdrivers}" "")
+    options+=("${txtinstallmediacodecs}" "")
+    options+=("${txtinstallfonts}" "")
+    options+=("${txtswitchssdtrim}" "$ISSSDTRIM")
+
+    options+=("${txtinstallkde}" "")
+
+    options+=("${txtswappiness}" "")
+    options+=("${txtinstallyay}" "")
+    options+=("${txtconfigSmbShare}" "")
+    options+=("${txtfixkonsoleshortcut}" "")
+    options+=("${txtfixcjk}" "")
+
+    options+=("${txtinstallsoftware}" "")
+    
+
+    sel=$(whiptail --backtitle "${apptitle}" --title "Select to Run" --menu "" --cancel-button "cancle" --default-item "${nextitem}" 0 0 0 \
+		"${options[@]}" \
+		3>&1 1>&2 2>&3)
+		
+    if [ "$?" = "0" ]; then
+       case ${sel} in
+             "${txtinstallextrapkgs}")
                 clear
 				installextrapkgs
                 pressanykey
@@ -1035,9 +1150,83 @@ archmenu(){
                 clear				
                 configSmbShare
                 pressanykey
-				nextitem="${txtunmount}"
+				nextitem="${txtfixkonsoleshortcut}"
 			;; 
+
+            "${txtfixkonsoleshortcut}")
+                clear				
+                archchroot fixkonsoleshortcut $USER_NAME
+                pressanykey
+				nextitem="${txtfixcjk}"
+			;; 
+
+            "${txtfixcjk}")
+                clear				
+                archchroot fixcjk
+                pressanykey
+				nextitem="${txtinstallsoftware}"
+			;; 
+            "${txtinstallsoftware}")
+                clear				
+                installsoftware
+                pressanykey
+				nextitem="${txtinstallsoftware}"
+			;; 
+
+
             
+
+        esac
+		desktopmenu "${nextitem}"
+    fi
+
+}
+
+# softmenu(){
+
+# }
+
+archmenu(){
+	if [ "${1}" = "" ]; then
+		nextitem="."
+	else
+		nextitem=${1}
+	fi    
+
+	options=()
+
+    options+=("${txtbaseinstall}" "")
+
+	
+    options+=("${txtdeskinstall}" "")
+        
+    
+    options+=("" "")    
+    options+=("${txtunmount}" "")
+    options+=("${txtreboot}" "")
+    
+	sel=$(whiptail --backtitle "${apptitle}" --title "Select to Run" --menu "" --cancel-button "cancle" --default-item "${nextitem}" 0 0 0 \
+		"${options[@]}" \
+		3>&1 1>&2 2>&3)
+		
+    if [ "$?" = "0" ]; then
+       
+		case ${sel} in
+            
+
+            "${txtbaseinstall}")
+                # clear	
+                basemenu
+                nextitem="${txtdeskinstall}"
+                ;;
+
+            "${txtdeskinstall}")
+                # clear
+				desktopmenu
+                # pressanykey
+				nextitem="${txtunmount}"
+			;;
+
 
             "${txtunmount}")
                 unmountdevices
@@ -1081,25 +1270,10 @@ if [ "${chroot}" = "1" ]; then
         'swappiness') swappinesschroot;;
         'installyay') installyaychroot ${arg1};;
         'configSmbShare') configSmbSharechroot ${arg1};;
+        'fixkonsoleshortcut') fixkonsoleshortcutchroot ${arg1};;
+        'fixcjk') fixcjkchroot;;
+        'installsoftware') installsoftwarechroot ${arg1} ${arg2};;
         
-        
-		# 'setrootpassword') archsetrootpasswordchroot;;
-		# 'genlocale') archgenlocalechroot;;
-		# 'settimeutc') archsettimeutcchroot;;
-		# 'settimelocal') archsettimelocalchroot;;
-		# 'genmkinitcpio') archgenmkinitcpiochroot;;
-		# 'enabledhcpcd') archenabledhcpcdchroot;;
-		# 'grubinstall') archgrubinstallchroot;;
-		# 'grubbootloaderinstall') archgrubinstallbootloaderchroot ${args};;
-		# 'grubbootloaderefiinstall') archgrubinstallbootloaderefichroot ${args};;
-		# 'grubbootloaderefiusbinstall') archgrubinstallbootloaderefiusbchroot ${args};;
-		# 'syslinuxbootloaderinstall') archsyslinuxinstallbootloaderchroot ${args};;
-		# 'syslinuxbootloaderefiinstall') archsyslinuxinstallbootloaderefichroot ${args};;
-		# 'systemdbootloaderinstall') archsystemdinstallchroot ${args};;
-		# 'refindbootloaderinstall') archrefindinstallchroot ${args};;
-		# 'archdiinstallandlaunch') archdiinstallandlaunchchroot;;
-		# 'archdiinstall') archdiinstallchroot;;
-		# 'archdilaunch') archdilaunchchroot;;
 	esac
 else
 	loadstrings
