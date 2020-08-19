@@ -675,7 +675,8 @@ installkde(){
       
 	options+=("plasma-desktop" "" on)
     options+=("kde-gtk-config" "" on)
-    options+=("breeze-gtk" "" on)    
+    options+=("breeze-gtk" "" on)
+    options+=("kscreen" "" on)        
     options+=("plasma-nm" "" on)
     options+=("plasma-pa" "" on)
 
@@ -875,9 +876,12 @@ installsoftware(){
     options+=("visual-studio-code" "(${txtoptional})" on)
     options+=("vmware" "(${txtoptional})" off)
     
-    options+=("evolution" "mail(${txtoptional})" off)
+    
+    options+=("xdman" "mail(${txtoptional})" off)
+    options+=("thunderbird" "mail(${txtoptional})" off)
     options+=("celluloid" "multimedia(${txtoptional})" off)
     options+=("libreoffice" "(${txtoptional})" off)
+    options+=("grsync" "(${txtoptional})" off)
     
 
     sel=$(whiptail --backtitle "${apptitle}" --title "${txtdrivers}" --checklist "" 0 0 0 \
@@ -955,21 +959,31 @@ installsoftwarechroot(){
             echo 'mks.gl.allowBlacklistedDrivers = "TRUE"' >> /home/${2}/.vmware/preferences
         fi
         
-        if [[ "${1}" == *"evolution"* ]]; then	
-            pacman -S --needed --noconfirm evolution
+        if [[ "${1}" == *"thunderbird"* ]]; then	
+            pacman -S --needed --noconfirm thunderbird
 
         fi
 
         if [[ "${1}" == *"celluloid"* ]]; then	
             pacman -S --needed --noconfirm celluloid
-
         fi
         
         if [[ "${1}" == *"libreoffice"* ]]; then	
             cd /home/${2}
-            sudo -u ${2} yay -S --needed libreoffice-fresh
+            sudo -u ${2} yay -S --needed libreoffice-fresh ttf-ms-fonts
 
         fi
+
+        if [[ "${1}" == *"xdman"* ]]; then	
+            cd /home/${2}
+            sudo -u ${2} yay -S --needed xdman
+
+        fi
+
+        if [[ "${1}" == *"grsync"* ]]; then	
+            pacman -S --needed --noconfirm grsync
+        fi
+        
         
 
     fi
