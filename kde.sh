@@ -417,7 +417,7 @@ archsettimechroot(){
     print_title "TIMEZONE - https://wiki.archlinux.org/index.php/Timezone"
     print_info "In an operating system the time (clock) is determined by four parts: Time value, Time standard, Time Zone, and DST (Daylight Saving Time if applicable)."
 
-    ln -sf /usr/share/zoneinfo/${ZONE}/${SUBZONE} /etc/localtime
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
     #systemctl enable systemd-timesyncd.service
     # hwclock --systohc --utc
     hwclock --systohc
@@ -693,7 +693,7 @@ installkde(){
     options+=("kate" "(${txtoptional})" on)
     options+=("inkscape" "(${txtoptional})" on)
     options+=("ark" "(${txtoptional})" on)
-    options+=("kinfocenter" "(${txtoptional})" on)
+    options+=("kinfocenter" "info center(${txtoptional})" on)
     options+=("kwalletmanager" "(${txtoptional})" off)
     options+=("gwenview" "(${txtoptional})" on)
     options+=("kipi-plugins" "(${txtoptional})" on)
@@ -705,6 +705,10 @@ installkde(){
     options+=("kompare" "(${txtoptional})" on)
     options+=("kdf" "(${txtoptional})" on)
     options+=("juk" "(${txtoptional})" on)
+    options+=("sweeper" "(${txtoptional})" on)
+    options+=("kcolorchooser" "(${txtoptional})" on)
+    options+=("neofetch" "(${txtoptional})" on)
+    options+=("htop" "(${txtoptional})" on)
 
 
   
@@ -882,6 +886,9 @@ installsoftware(){
     options+=("celluloid" "multimedia(${txtoptional})" off)
     options+=("libreoffice" "(${txtoptional})" off)
     options+=("grsync" "(${txtoptional})" off)
+    options+=("calibre" "(${txtoptional})" off)
+    options+=("exa" "(${txtoptional})" off)
+    
     
 
     sel=$(whiptail --backtitle "${apptitle}" --title "${txtdrivers}" --checklist "" 0 0 0 \
@@ -960,7 +967,7 @@ installsoftwarechroot(){
         fi
         
         if [[ "${1}" == *"thunderbird"* ]]; then	
-            pacman -S --needed --noconfirm thunderbird
+            pacman -S --needed --noconfirm thunderbird thunderbird-i18n-zh-cn
 
         fi
 
@@ -983,6 +990,17 @@ installsoftwarechroot(){
         if [[ "${1}" == *"grsync"* ]]; then	
             pacman -S --needed --noconfirm grsync
         fi
+
+        if [[ "${1}" == *"calibre"* ]]; then	
+            sudo -u ${2} yay -S --needed calibre
+        fi
+
+        if [[ "${1}" == *"exa"* ]]; then	
+            pacman -S --needed --noconfirm --needed exa
+
+            echo "alias ll='exa -gl --time-style long-iso --group-directories-first'" >> /home/${2}/.bashrc
+        fi
+        
         
         
 

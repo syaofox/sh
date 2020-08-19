@@ -30,19 +30,19 @@ deplpy(){
 
 synctyporanotes(){
 	echo "[info]syncing typora_notes"
-	cd /home/syaofox/Github/typora_notes
+	cd /home/syaofox/Documents/Github/typora_notes
 	deplpy
 }
 
 syncsh(){
 	echo "[info]syncing sh"
-	cd /home/syaofox/Github/sh
+	cd /home/syaofox/Documents/Github/sh
 	deplpy
 }
 
 syncsyaofox(){
 	echo "[info]syncing syaofox.github.io"
-	cd /home/syaofox/Github/syaofox.github.io
+	cd /home/syaofox/Documents/Github/syaofox.github.io
 	git submodule update
 	deplpy
 }
