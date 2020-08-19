@@ -676,20 +676,21 @@ installkde(){
 	options+=("plasma-desktop" "" on)
     options+=("kde-gtk-config" "" on)
     options+=("breeze-gtk" "" on)
-    options+=("kscreen" "" on)        
-    options+=("plasma-nm" "" on)
-    options+=("plasma-pa" "" on)
+    options+=("kscreen" "KDE's screen management software" on)        
+    options+=("plasma-nm" "Plasma applet for managing network connections" on)
+    options+=("plasma-pa" "Sound applet in the system tray" on)
 
     options+=("sddm" "" on)    
-    options+=("sddm-kcm" "" on) 
+    options+=("sddm-kcm" "KDE Config Module for SDDM" on) 
 
     options+=("pacman-contrib" "(${txtoptional})" on)
     options+=("packagekit-qt5" "(${txtoptional})" on)
     options+=("discover" "(${txtoptional})" on)
 
     options+=("konsole" "(${txtoptional})" on)
-    options+=("dolphin" "(${txtoptional})" on)
-    options+=("ffmpegthumbs" "(${txtoptional})" on)
+    options+=("dolphin" "(${txtoptional})" on)    
+    options+=("kdegraphics-thumbnailers" "Thumbnail generation(${txtoptional})" on)
+    options+=("ffmpegthumbs" "Thumbnail generation(${txtoptional})" on)
     options+=("kate" "(${txtoptional})" on)
     options+=("inkscape" "(${txtoptional})" on)
     options+=("ark" "(${txtoptional})" on)
@@ -1164,6 +1165,13 @@ basemenu(){
 
 addarchlinuxcnchroot(){
     echo "Configing Archlinuxcn"
+
+    if [ "$(cat /etc/pacman.conf | grep "[archlinuxcn]")" != "" ]; then
+        sed -i 's/^\[archlinuxcn\]$//g' /etc/pacman.conf 
+        sed -i 's/^Server = https\:\/\/mirrors\.bfsu\.edu\.cn.*arch$//g' /etc/pacman.conf 
+        
+    fi
+
     echo "[archlinuxcn]" | tee -a /etc/pacman.conf
     echo "Server = https://mirrors.bfsu.edu.cn/archlinuxcn/\$arch" | tee -a /etc/pacman.conf
     pacman -Syy --noconfirm
