@@ -364,6 +364,7 @@ archsethostname(){
 archgenlocale(){
 	items=$(ls /usr/share/i18n/locales)
 	options=()
+    options+=("C" "" on)		
 	defsel=""
 	for item in ${items}; do
 		if [ "${item}" = "en_US" ] || [ "${item}" = "zh_CN" ] || [ "${item}" = "zh_HK" ] || [ "${item}" = "zh_TW" ]; then
@@ -543,7 +544,7 @@ installdrivers(){
     pkgs=""
     options=()   
       
-	options+=("xorg" "(${txtoptional})" on)
+	options+=("xorg" "(${txtoptional})" off)
     options+=("xorg-xinit" "(${txtoptional})" off)
     options+=("xorg-server" "(${txtoptional})" off)
     
@@ -671,8 +672,10 @@ installfonts(){
 
 installkde(){
     pkgs=""
-    options=()   
-      
+    options=() 
+
+     
+    options+=("plasma-wayland-session" "" on)
 	options+=("plasma-desktop" "" on)
     options+=("kde-gtk-config" "" on)
     options+=("breeze-gtk" "" on)
@@ -911,12 +914,35 @@ installsoftwarechroot(){
     if [ ! "${1}" = "none" ] &&  [ ! "${2}" = "none" ]; then
         clear
         if [[ "${1}" == *"fcitx5"* ]]; then		
-            print_line 
+            
             sudo -u ${2} yay -S --needed fictx5 fcitx5-chinese-addons kcm-fcitx5 fcitx5-qt fcitx5-gtk fcitx5-material-color
+            print_line 
             sudo -u ${2} echo "export GTK_IM_MODULE=fcitx5" >> /home/${2}/.xprofile
             sudo -u ${2} echo "export XMODIFIERS=@im=fcitx5" >> /home/${2}/.xprofile
             sudo -u ${2} echo "export QT_IM_MODULE=fcitx5" >> /home/${2}/.xprofile
             sudo -u ${2} echo "fcitx5 &" >> /home/${2}/.xprofile
+
+
+            print_line 
+            echo "GTK_IM_MODULE=fcitx5" >> /etc/enviroment
+            echo "XMODIFIERS=@im=fcitx5" >> /etc/enviroment
+            echo "QT_IM_MODULE=fcitx5" >> /etc/enviroment
+
+            sudo -u ${2} echo "[Desktop Entry]" > ~/.config/autostart
+            sudo -u ${2} echo "Categories=System;Utility;" >> ~/.config/autostart
+            sudo -u ${2} echo "Comment=Start Input Method" >> ~/.config/autostart
+            sudo -u ${2} echo "Exec=/usr/bin/fcitx5" >> ~/.config/autostart
+            sudo -u ${2} echo "GenericName=Input Method" >> ~/.config/autostart
+            sudo -u ${2} echo "Icon=fcitx" >> ~/.config/autostart
+            sudo -u ${2} echo "Name=Fcitx 5" >> ~/.config/autostart
+            sudo -u ${2} echo "StartupNotify=false" >> ~/.config/autostart
+            sudo -u ${2} echo "Terminal=false" >> ~/.config/autostart
+            sudo -u ${2} echo "Type=Application" >> ~/.config/autostart
+            sudo -u ${2} echo "X-GNOME-AutoRestart=false" >> ~/.config/autostart
+            sudo -u ${2} echo "X-GNOME-Autostart-Notify=false" >> ~/.config/autostart
+            sudo -u ${2} echo "X-KDE-StartupNotify=false" >> ~/.config/autostart
+            sudo -u ${2} echo "X-KDE-autostart-after=panel" >> ~/.config/autostart
+
         fi
 
         if [[ "${1}" == *"dropbox"* ]]; then	
