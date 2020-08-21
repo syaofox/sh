@@ -544,7 +544,7 @@ installdrivers(){
     pkgs=""
     options=()   
       
-	options+=("xorg" "(${txtoptional})" off)
+	options+=("xorg" "(${txtoptional})" on)
     options+=("xorg-xinit" "(${txtoptional})" off)
     options+=("xorg-server" "(${txtoptional})" off)
     
@@ -675,7 +675,7 @@ installkde(){
     options=() 
 
      
-    options+=("plasma-wayland-session" "" on)
+    options+=("plasma-wayland-session" "" off)
 	options+=("plasma-desktop" "" on)
     options+=("kde-gtk-config" "" on)
     options+=("breeze-gtk" "" on)
@@ -923,25 +923,25 @@ installsoftwarechroot(){
             sudo -u ${2} echo "fcitx5 &" >> /home/${2}/.xprofile
 
 
-            print_line 
-            echo "GTK_IM_MODULE=fcitx5" >> /etc/enviroment
-            echo "XMODIFIERS=@im=fcitx5" >> /etc/enviroment
-            echo "QT_IM_MODULE=fcitx5" >> /etc/enviroment
+            # print_line 
+            # echo "GTK_IM_MODULE=fcitx5" >> /etc/enviroment
+            # echo "XMODIFIERS=@im=fcitx5" >> /etc/enviroment
+            # echo "QT_IM_MODULE=fcitx5" >> /etc/enviroment
 
-            sudo -u ${2} echo "[Desktop Entry]" > ~/.config/autostart
-            sudo -u ${2} echo "Categories=System;Utility;" >> ~/.config/autostart
-            sudo -u ${2} echo "Comment=Start Input Method" >> ~/.config/autostart
-            sudo -u ${2} echo "Exec=/usr/bin/fcitx5" >> ~/.config/autostart
-            sudo -u ${2} echo "GenericName=Input Method" >> ~/.config/autostart
-            sudo -u ${2} echo "Icon=fcitx" >> ~/.config/autostart
-            sudo -u ${2} echo "Name=Fcitx 5" >> ~/.config/autostart
-            sudo -u ${2} echo "StartupNotify=false" >> ~/.config/autostart
-            sudo -u ${2} echo "Terminal=false" >> ~/.config/autostart
-            sudo -u ${2} echo "Type=Application" >> ~/.config/autostart
-            sudo -u ${2} echo "X-GNOME-AutoRestart=false" >> ~/.config/autostart
-            sudo -u ${2} echo "X-GNOME-Autostart-Notify=false" >> ~/.config/autostart
-            sudo -u ${2} echo "X-KDE-StartupNotify=false" >> ~/.config/autostart
-            sudo -u ${2} echo "X-KDE-autostart-after=panel" >> ~/.config/autostart
+            # sudo -u ${2} echo "[Desktop Entry]" > ~/.config/autostart
+            # sudo -u ${2} echo "Categories=System;Utility;" >> ~/.config/autostart
+            # sudo -u ${2} echo "Comment=Start Input Method" >> ~/.config/autostart
+            # sudo -u ${2} echo "Exec=/usr/bin/fcitx5" >> ~/.config/autostart
+            # sudo -u ${2} echo "GenericName=Input Method" >> ~/.config/autostart
+            # sudo -u ${2} echo "Icon=fcitx" >> ~/.config/autostart
+            # sudo -u ${2} echo "Name=Fcitx 5" >> ~/.config/autostart
+            # sudo -u ${2} echo "StartupNotify=false" >> ~/.config/autostart
+            # sudo -u ${2} echo "Terminal=false" >> ~/.config/autostart
+            # sudo -u ${2} echo "Type=Application" >> ~/.config/autostart
+            # sudo -u ${2} echo "X-GNOME-AutoRestart=false" >> ~/.config/autostart
+            # sudo -u ${2} echo "X-GNOME-Autostart-Notify=false" >> ~/.config/autostart
+            # sudo -u ${2} echo "X-KDE-StartupNotify=false" >> ~/.config/autostart
+            # sudo -u ${2} echo "X-KDE-autostart-after=panel" >> ~/.config/autostart
 
         fi
 
