@@ -674,7 +674,8 @@ installkde(){
     pkgs=""
     options=() 
 
-     
+    options+=("plasma" "" off)
+    
     options+=("plasma-wayland-session" "" off)
 	options+=("plasma-desktop" "" on)
     options+=("kde-gtk-config" "" on)
