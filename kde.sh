@@ -180,7 +180,7 @@ select_mirrors(){
     
     reflector -c CN --sort rate  -a 15 -p https --save /etc/pacman.d/mirrorlist
     pacman -Syyy --noconfirm
-    cat /etc/pacman.d/mirrorlist
+    vim /etc/pacman.d/mirrorlist
     MIRRORS_SELECTED="yes"
 }
 
