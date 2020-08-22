@@ -545,7 +545,7 @@ installdrivers(){
     options=()   
       
 	options+=("xorg" "(${txtoptional})" on)
-    options+=("xorg-xinit" "(${txtoptional})" off)
+    options+=("xorg-xinit" "(${txtoptional})" on)
     options+=("xorg-server" "(${txtoptional})" off)
     
 
@@ -554,14 +554,14 @@ installdrivers(){
     options+=("pulseaudio-bluetooth" "(${txtoptional})" on)
     options+=("bluez" "(${txtoptional})" on)
     options+=("bluedevil" "(${txtoptional})" on)
-    options+=("powerdevil" "(${txtoptional})" on)
+    options+=("powerdevil" "(${txtoptional})" off)
 
     options+=("xf86-video-intel" "(${txtoptional})" on)
-    options+=("vulkan-intel" "(${txtoptional})" on)
+    options+=("vulkan-intel" "(${txtoptional})" off)
     options+=("xf86-video-amdgpu" "(${txtoptional})" on)
-    options+=("libva-mesa-driver " "(${txtoptional})" on)
-    options+=("vulkan-radeon" "(${txtoptional})" on)
-    options+=("mesa" "(${txtoptional})" on)
+    options+=("libva-mesa-driver " "(${txtoptional})" off)
+    options+=("vulkan-radeon" "(${txtoptional})" off)
+    options+=("mesa" "(${txtoptional})" off)
 
     options+=("xf86-input-libinput" "(${txtoptional})" on)
 
@@ -674,15 +674,15 @@ installkde(){
     pkgs=""
     options=() 
 
-    options+=("plasma" "" off)
+    options+=("plasma" "" on)
     
     options+=("plasma-wayland-session" "" off)
-	options+=("plasma-desktop" "" on)
-    options+=("kde-gtk-config" "" on)
-    options+=("breeze-gtk" "" on)
-    options+=("kscreen" "KDE's screen management software" on)        
-    options+=("plasma-nm" "Plasma applet for managing network connections" on)
-    options+=("plasma-pa" "Sound applet in the system tray" on)
+	options+=("plasma-desktop" "" off)
+    options+=("kde-gtk-config" "" off)
+    options+=("breeze-gtk" "" off)
+    options+=("kscreen" "KDE's screen management software" off)        
+    options+=("plasma-nm" "Plasma applet for managing network connections" off)
+    options+=("plasma-pa" "Sound applet in the system tray" off)
 
     options+=("sddm" "" on)    
     options+=("sddm-kcm" "KDE Config Module for SDDM" on) 
@@ -893,6 +893,10 @@ installsoftware(){
     options+=("grsync" "(${txtoptional})" off)
     options+=("calibre" "(${txtoptional})" off)
     options+=("exa" "(${txtoptional})" off)
+
+    options+=("kcm-colorful-git" "(${txtoptional})" off)
+    options+=("breeze-blurred-git" "(${txtoptional})" off)
+     
     
     
 
@@ -1028,9 +1032,15 @@ installsoftwarechroot(){
 
             echo "alias ll='exa -gl --time-style long-iso --group-directories-first'" >> /home/${2}/.bashrc
         fi
-        
-        
-        
+
+        if [[ "${1}" == *"kcm-colorful-git"* ]]; then	
+            sudo -u ${2} yay -S --kcm-colorful-git
+        fi
+
+        if [[ "${1}" == *"breeze-blurred-git"* ]]; then	
+            sudo -u ${2} yay -S --breeze-blurred-git
+        fi
+
 
     fi
 }
