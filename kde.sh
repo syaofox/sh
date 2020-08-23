@@ -618,13 +618,11 @@ installmediacodecs(){
          
       
 	options+=("gstreamer" "(${txtoptional})" on)
-    options+=("gst-libav" "(${txtoptional})" on)
-    options+=("gst-plugins-bad" "(${txtoptional})" off)
+    options+=("gst-libav" "(${txtoptional})" on)    
     options+=("gst-plugins-base" "(${txtoptional})" on)
-    options+=("gst-plugins-good" "(${txtoptional})" on)
-    
-    options+=("gst-plugins-good" "(${txtoptional})" on)
-    options+=("gst-plugins-ugly" "(${txtoptional})" off)
+    options+=("gst-plugins-good" "(${txtoptional})" on)   
+    options+=("gst-plugins-bad" "(${txtoptional})" on) 
+    options+=("gst-plugins-ugly" "(${txtoptional})" on)
     
     options+=("gstreamer-vaapi" "(${txtoptional})" on)
 
