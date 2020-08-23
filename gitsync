@@ -5,7 +5,7 @@ txttypora_notes="txttypora_notes"
 txtsh="sh"
 txtsyaofox="syaofox.github.io"
 txtall="all"
-MAINPATH="/home/syaofox/Github"
+# MAINPATH="/home/syaofox/Github"
 
 pressanykey(){
 	read -n1 -p "${txtpressanykey}"
@@ -31,19 +31,19 @@ deplpy(){
 
 synctyporanotes(){
 	echo "[info]syncing typora_notes"
-	cd ${MAINPATH}/typora_notes
+	cd /home/syaofox/Github/typora_notes
 	deplpy
 }
 
 syncsh(){
 	echo "[info]syncing sh"
-	cd ${MAINPATH}/sh
+	cd /home/syaofox/Github/sh
 	deplpy
 }
 
 syncsyaofox(){
 	echo "[info]syncing syaofox.github.io"
-	cd ${MAINPATH}/syaofox.github.io
+	cd /home/syaofox/Github/syaofox.github.io
 	git submodule update
 	deplpy
 }
