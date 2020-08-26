@@ -712,7 +712,8 @@ installkde(){
     options+=("kcolorchooser" "(${txtoptional})" on)
     options+=("neofetch" "(${txtoptional})" on)
     options+=("htop" "(${txtoptional})" on)
-
+    options+=("bash-completion" "(${txtoptional})" on)
+ 
 
   
     sel=$(whiptail --backtitle "${apptitle}" --title "${txtdrivers}" --checklist "" 0 0 0 \
