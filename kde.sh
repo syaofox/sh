@@ -713,6 +713,7 @@ installkde(){
     options+=("neofetch" "(${txtoptional})" on)
     options+=("htop" "(${txtoptional})" on)
     options+=("bash-completion" "(${txtoptional})" on)
+    options+=("peek" "(gif recorder ${txtoptional})" on)
  
 
   
@@ -895,6 +896,8 @@ installsoftware(){
 
     options+=("kcm-colorful-git" "(${txtoptional})" off)
     options+=("breeze-blurred-git" "(${txtoptional})" off)
+
+    options+=("kdeconnect" "(${txtoptional})" off)
      
     
     
@@ -1027,7 +1030,7 @@ installsoftwarechroot(){
         fi
 
         if [[ "${1}" == *"exa"* ]]; then	
-            pacman -S --needed --noconfirm --needed exa
+            pacman -S --needed --noconfirm exa
 
             echo "alias ll='exa -gl --time-style long-iso --group-directories-first'" >> /home/${2}/.bashrc
         fi
@@ -1039,7 +1042,12 @@ installsoftwarechroot(){
         if [[ "${1}" == *"breeze-blurred-git"* ]]; then	
             sudo -u ${2} yay -S --breeze-blurred-git
         fi
-
+        
+        if [[ "${1}" == *"kdeconnect"* ]]; then	
+            pacman -S --needed --noconfirm kdeconnect
+            pacman -S --needed --noconfirm sshfs
+        fi
+        
 
     fi
 }
